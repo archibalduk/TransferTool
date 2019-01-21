@@ -1,0 +1,76 @@
+<h1>Step by Step Guide</h1>
+<h3>Step 1: Open the database</h3>
+<p>Click on <b>Open</b> to open a database.</p>
+<h3>Step 2: Open the spreadsheet</h3>
+<p>On the <b>Transfer Import</b> tab click on <b>Open File</b> and select the spreadsheet you would like to import. The Tool will then process your spreadsheet.</p>
+<p><i>Note: Before opening the spreadsheet, ensure that the <b>Row Buffer</b> size at the top of the Tool's window is greater than or equal to the number of rows in your spreadsheet. A smaller Row Buffer may slow down the import process slightly.</i></p>
+<h3>Step 3: Check for errors</h3>
+<p>A process summary will be displayed in coloured boxes once the Tool has finished processing the spreadsheet as follows:
+<ul><li><b>Players matched:</b> The number of players in the spreadsheet which the Tool has identified as matching players in the database;</li>
+<li><b>Players to be created:</b> The number of players in the spreadsheet which the Tool could <u>not</u> match against players in the database. Consequently those players will be added as new players in the database;</li>
+<li><b>Protected players:</b> The number of players identified as being protected (see <b><i>Protected Players</i></b> and <b><i>vlookup_protected_players.csv</i></b> below); and</li>
+<li><b>Rows with errors:</b> The number of rows that contain a club and/or nation which could not be found in the database. These rows will not be processed if you proceed with the import.</li></ul></p>
+<p>If the number of players to be created is more than you expected or if there are rows with errors:
+<ol><li>Click on <b>Save File</b> to save a copy of your spreadsheet;</li>
+<li>Open your saved spreadsheet and scroll to the far right columns of the spreadsheet where you will find the following additional columns:
+<ul><li><b>Staff ID:</b> An ID of -127 means that the player will be created. Any other number refers to the player's Staff ID in the database;</li>
+<li><b>Nation 1 ID & Nation 2 ID:</b> An ID of -127 means that the chosen nation does not exist and this should be corrected in the spreadsheet. A -126 means that the cell is blank (this is not an error - it just means that the existing Nation ID value in the database will not be modified). A -1 simply means no nation selected (this is not an error) and any other number refers to the nation's Nation ID in the database;</li>
+<li><b>Club ID & Loan Club ID:</b> An ID of -127 means that the chosen club does not exist and this should be corrected in the spreadsheet. A -126 means that the cell is blank (this is not an error - it just means that the existing Club ID value in the database will not be modified). A -1 simply means no club selected (i.e. free agent - this is not an error) and any other number refers to the club's Club ID in the database; and</li>
+<li><b>Protected:</b> 1 = the player is protected and 0 = the player is not protected.</li></ul></li>
+<li>If you decide that the spreadsheet is fine and there are no errors then proceed with <b>Step 4</b> below.</li>
+<li>If there errors that you need to correct then do the following:
+<ol><li>Click on the <b>Close File</b> button in the <b>Transfer Import</b> screen of the Tool. This will cancel the import process;</li>
+<li>Correct the errors in the spreadsheet (you can either edit your original spreadsheet or the one you saved from the Tool - it doesn't matter which); and</li>
+<li>Start again from <b>Step 2</b> above.</li></ol></li></ol></p>
+<h3>Step 4: Import the data</h3>
+<p>Once you are happy that the spreadsheet has no errors, click on the <b>Import Data</b> button to import the spreadsheet into the database.</p>
+<h3>Step 5: Close the spreadsheet</h3>
+<p>Click on the <b>Close File</b> button in order to close the spreadsheet once the import process is complete.</p>
+<h3>Step 6: Save the database</h3>
+<p>Click on <b>Save</b> or <b>Save As</b> to save your database.</p>
+
+<h1>Important Information</h1>
+<h3>Non-Playing Staff</h3>
+<p>The Tool can be used to edit the contract data of non-playing staff but it <u>cannot</u> be used to (1) edit Non-Player Ability or Non-Player Reputation or (2) create new non-players.</p>
+<h3>Contract Start Date</h3>
+<p>This column is imported as <b>Date Joined Club</b> in the database.</p>
+<h3>First & Second Name vs Common Name</h3>
+<p>To edit an existing player, you can either enter his first and second name or his common name. You cannot edit an existing player's name or common name.</p>
+<p>When creating a new player, you can set their first and second name and/or their common name.</p>
+<h3>Transfer Value, Wage and World Reputation</h3>
+<p>Note that the Tool will automatically set a player's Wage and World Reputation based upon the Transfer Value entered into the spreadsheet (see the <b>Transfer Value</b> column). If you do not want this to happen then do not enter any Value.</p>
+
+<h1>Settings</h1>
+<h3>Row Buffer</h3>
+<p>This is used to fine-tune the performance of the Tool. The smaller the buffer, the less RAM used by the Tool (in theory). The buffer should be set to a value which is greater than or equal to the number of rows in the spreadsheet to be imported. If the buffer is less than the number of rows in the spreadsheet then the Tool may load the spreadsheet at a lower speed because it will need to continually reallocate memory for each row over and above the buffer whilst loading the spreadsheet (the effect of the speed decrease might only be marginal however). Unless you have very little RAM or you are importing a huge spreadsheet then you can usually leave this setting at the default value.</p>
+<h3>Accent Matching</h3>
+<p>Determines whether accents are taken into account when attempting to match any text from the imported spreadsheet against text in the database (e.g. person names, club names, competition names, etc). Use the <b>enabled</b> setting to apply strict accent matching. This means that "Dembele" would not match against "Dembélé". Use the <b>disabled</b> setting to relax matching such that "Dembele" in the spreadsheet would be treated as a match against "Dembélé". This means that you do not need to worry about using the correct accented characters in the spreadsheet.</p>
+<h3>Club Name Lookup</h3>
+<p>Determines whether the club names used in the imported spreadsheet will be corrected using the data from the <i>vlookup_clubs.csv</i> file which is located in the same folder as the <i>Transfer Tool.exe</i> file. Use the <b>enabled</b> setting to allow lookup correction. This is essentially a find and replace function. A "Find" and a "Replace" setting is specified in the <i>vlookup_clubs.csv</i> which the Tool uses to find and replace club names in the imported spreadsheet. This is intended to be a quick and easy way of correcting club names in the imported spreadsheet. Use the <b>disabled</b> setting to prevent any club name lookup.</p>
+<h3>Club Name Source</h3>
+<p>Determines whether the club names in the imported spreadsheet will be matched against <b>short names and long names</b> or <b>short names only</b> from the database.</p>
+<h3>First Name Lookup</h3>
+<p>This setting does not do anything yet.</p>
+<h3>Protected Players</h3>
+<p>Determines whether the players listed in the <i>vlookup_protected_players.csv</i> file will be protected when importing changes from a spreadsheet. Using the <b>enabled</b> will prevent protected players from having any of their protected details modified by the Transfer Tool. The <b>disabled</b> setting prevents this behaviour, meaning that no players will be protected.</p>
+<p>The protected details are: Footedness, Positions, Sides, Reputation/Value and Current & Potential Ability.</p>
+<h3>Exchange Rate</h3>
+<p>This setting can be used to correct transfer value data in the imported spreadsheet if it has been entered using a foreign currency. Use an Exchange Rate of £1.00 if no exchange rate correction is to be applied.</p>
+<h3>Year Adjustment</h3>
+<p>This setting allows the Transfer Tool to match up the dates of birth in the database against the dates of birth in the imported spreadsheet where different year adjustments have been used. To calculate the adjustment, take the year from the spreadsheet and subtract the year in the database. For example, if David de Gea's year of birth in the database is 1976 and it is 1990 in the spreadsheet, the adjustment to be entered is 14 (1990 - 1976 = 14).</p>
+<h1>Vertical Lookup Settings Files</h1>
+<p>The vertical lookup files are all located in the same folder as the <i>Transfer Tool.exe</i> file. These files are used to apply corrections to the spreadsheet import file similar to the Excel VLookup function or a find and replace function. Each vlookup file contains a <i>Find:</i> and a <i>Replace:</i> column. The <i>Find:</i> column is used to list out the text you want to find and correct. The <i>Replace:</i> column is used to list out the corrected text to be inserted in place (this text should match the appropriate text from the database).</p>
+<h3>vlookup_clubs.csv</h3>
+<p>Find and replace club names.</p>
+<h3>vlookup_clubs_prefix_suffix.csv</h3>
+<p>This file is different from the other vlookup files. Rather than searching and replacing, this file sets out club name prefixes and suffixes which are to be disregarded by the Transfer Tool when attempting to match club names. The prefixes/suffixes are only used as a last resort - the Transfer Tool will in the first instance try to match against the full club short/long name and only if it cannot find a match will it try again with the prefixes/suffixes disregarded. For instance, if "AFC" is contained in the vlookup file, you can use "Wimbledon" in the imported spreadsheed even if the club is called "AFC Wimbledon" in the database (or vice-versa). This is because "AFC" will be a disregarded prefix/suffix.</p>
+<h3>vlookup_nations.csv</h3>
+<p>Find and replace nation names.</p>
+<h3>vlookup_protected_players.csv</h3>
+<p>List the names and dates of birth of the players that are to be protected for the purposes of the <i>Protected Players</i> setting. The <i>Staff ID</i> column is populated automatically by the Transfer Tool (it will insert the IDs from the most recently loaded database and will auto-update them each time a new database is opened - do not attempt to set the ID numbers manually as they will be ignored and overwritten by the Tool).</p>
+
+<h1>Other Settings Files</h1>
+<h3>delimiter_repair.txt</h3>
+<p>Files using the csv format should use commas and semi-colons only for the purposes of indicating the end of a column/cell. However, it is easy to overlook this and mistakes can creep in. To mitigate against this, the <i>delimiter_repair.txt</i> file is used to auto-correct common mistakes. One such common mistake is to enter "Korea South" as "Korea, South". By listing this error in this file, the Transfer Tool will automatically remove the comma/semi-colon for you.</p>
+<h3>settings.dat</h3>
+<p>Internal settings for the Transfer Tool. Nothing to see here! ;-)</p>

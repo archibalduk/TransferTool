@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/buttons">
+		<file alias="document-open.png">icons/document-open.png</file>
+		<file alias="document-save.png">icons/document-save.png</file>
+		<file alias="document-save-as.png">icons/document-save-as.png</file>
+                <file alias="row-buffer.png">icons/row-buffer.png</file>
+    </qresource>
+</RCC>
