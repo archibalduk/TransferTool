@@ -468,8 +468,9 @@ void TransferImporter::process(const QTime &timer)
             staffId = staffMain.value(QString("%1 %2").arg(staffText).arg(dob), NO_MATCH);
 
             // Use failsafe hash (i.e. year of birth) if no match found using main hash (i.e. date of birth)
-            if(staffId == NO_MATCH)
-                staffId = staffFailSafe.value(QString("%1 %2").arg(staffText).arg(yob), NO_MATCH);
+            // Note: removed as it was causing players to be considered equal if their names and YOB only were equal
+            /*if(staffId == NO_MATCH)
+                staffId = staffFailSafe.value(QString("%1 %2").arg(staffText).arg(yob), NO_MATCH);*/
         }
 
         // Check for protected staff (vector will be empty if the setting is disabled)
