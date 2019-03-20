@@ -30,6 +30,9 @@ void Staff::validate()
     const int sz = db.size();
 
     for(int i = 0; i < sz; ++i) {
+        // Validate date of birth
+        db[i].DateOfBirth.validate();
+
         // Validate year of birth
         db[i].YearOfBirth.validate(db[i].DateOfBirth.year());
 
@@ -294,7 +297,7 @@ void Staff::createHash(QHash<QString, int> &dobHash, QHash<QString, int> &yobHas
             }
 
             // Add full name if available
-            if(itr.FirstName.isPointer() && itr.SecondName.isPointer()) {
+            if(itr.FirstName.isPointer() && itr.SecondName.isPointer()) {                
                 dobHash.insert(QString("%1 %2 %3").arg(itr.FirstName.getMatchText()).arg(itr.SecondName.getMatchText()).arg(dob), itr.ID);
                 yobHash.insert(QString("%1 %2 %3").arg(itr.FirstName.getMatchText()).arg(itr.SecondName.getMatchText()).arg(yob), itr.ID);
             }

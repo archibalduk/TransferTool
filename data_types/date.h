@@ -25,7 +25,10 @@ public:
     // Set data
     void set(const QDate &date, const int yearAdjustment = 0);
     void set(const QString &value, const int yearAdjustment = 0);
-    void set(const QVariant &value, const int yearAdjustment = 0);
+    void set(const QVariant &value, const int yearAdjustment = 0);    
+
+    // Validate data
+    void validate();
 };
 
 #endif // DATE_H
