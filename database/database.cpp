@@ -173,6 +173,45 @@ template<typename T> bool Database::read(QString filename,
     }
 }
 
+// --- Read .dat file/table (defined number of records) --- //
+bool Database::read(const QString &filename, qint32 (*fnRead)(QDataStream &, const qint32 &),
+                    int recordSize, int skipBytes, int recordCount)
+{
+    m_Progress->increment(filename);
+
+    QFile f(m_Folder + filename);
+
+    if(!f.open(QIODevice::ReadOnly))
+    {
+        m_FileErrorList << filename;
+        return false;
+    }
+
+    else {
+        // Data stream
+        QDataStream in(&f);
+        in.setByteOrder(QDataStream::LittleEndian);
+        in.skipRawData(skipBytes);
+
+        // If the record count has not been passed to the function, calculate it using the file size divided by record size.
+        // This prevents the issue where a file (e.g. nation_comp_history.dat has an extra byte at the end of the file which
+        // is then read as a garbage record (and will then be saved as a garbage record). Such extraneous bytes will be ignored
+        // because the record count is rounded down to the nearest whole number when cast to an integer per the below calculation.
+        if(recordCount < 0)
+            recordCount = static_cast<int>(f.size() / recordSize);
+
+        // Read the data
+        const qint32 result = fnRead(in, recordCount);
+
+        /*QLocale locale;
+        qDebug() << QString("%1: %2 records / %3 bytes").arg(filename).arg(locale.toString(result)).arg(locale.toString(in.device()->pos()));
+        QCoreApplication::processEvents();*/
+
+        f.close();
+        return true;
+    }
+}
+
 // --- Read an index.dat file --- //
 bool Database::readIndex(QString filename, QVector<Index> &data, int recordSize)
 {
@@ -319,8 +358,10 @@ bool Database::load(const QString &folder)
     this->read("officials.dat", Official::db, DB_OFFICIAL_SIZE);
     this->read("second_names.dat", SecondName::db, DB_NAME_SIZE);
     this->read("stadium.dat", Stadium::db, DB_STADIUM_SIZE);
-    this->read("staff.dat", Staff::db, DB_STAFF_SIZE,
-               Index::db[Index::STAFF_TABLE].getOffset(), Index::db[Index::STAFF_TABLE].getRecordCount());
+    Staff::db.clear();
+    this->read("staff.dat", &Staff::readAll, DB_STAFF_SIZE, Index::db[Index::STAFF_TABLE].getOffset(), Index::db[Index::STAFF_TABLE].getRecordCount());
+    /*this->read("staff.dat", Staff::db, DB_STAFF_SIZE,
+               Index::db[Index::STAFF_TABLE].getOffset(), Index::db[Index::STAFF_TABLE].getRecordCount());*/
     this->read("staff.dat", NonPlayer::db, DB_NON_PLAYER_SIZE,
                Index::db[Index::NON_PLAYER_TABLE].getOffset(), Index::db[Index::NON_PLAYER_TABLE].getRecordCount());
     this->read("staff.dat", Player::db, DB_PLAYER_SIZE,

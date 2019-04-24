@@ -11,7 +11,7 @@
 class DataPointer
 {
 protected:
-    int id;
+    //int id;
 
     // Default text
     static QString s_IdentifierNoneText;
@@ -28,6 +28,7 @@ public:
     QString getText() const;
     bool isNone() const;
     bool isPointer() const;
+    int id;
 
     // Set data
     void clear();

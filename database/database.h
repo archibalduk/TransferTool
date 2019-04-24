@@ -23,6 +23,7 @@ private:
 
     // File I/O: Dat File
     template<typename T> bool read(QString filename, QVector<T> &data, int recordSize, int skipBytes = 0, int recordCount = -1);
+    bool read(const QString &filename, qint32 (*fnRead)(QDataStream &, const qint32 &), int recordSize, int skipBytes = 0, int recordCount = -1);
     bool readIndex(QString filename, QVector<Index> &data, int recordSize);
     template<typename T> bool write(QString filename, QVector<T> &data, int recordSize, bool append = false);
     bool writeIndex(QString filename, QVector<Index> &data, int recordSize);

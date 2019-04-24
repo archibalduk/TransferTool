@@ -1,6 +1,7 @@
 #ifndef DATE_H
 #define DATE_H
 
+#include <QDataStream>
 #include <QDate>
 #include <QString>
 #include <QVariant>
@@ -23,6 +24,7 @@ public:
     short year();
 
     // Set data
+    void set(qint16 &day, qint16 &year);
     void set(const QDate &date, const int yearAdjustment = 0);
     void set(const QString &value, const int yearAdjustment = 0);
     void set(const QVariant &value, const int yearAdjustment = 0);    
@@ -30,5 +32,8 @@ public:
     // Validate data
     void validate();
 };
+
+// Operator overloading
+QDataStream & operator >> (QDataStream &in, Date &data);
 
 #endif // DATE_H

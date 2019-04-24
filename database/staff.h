@@ -33,6 +33,45 @@ class Staff
 {   
 private:
     // Database data
+    qint32 IDR;
+    qint32 FirstNameId;
+    qint32 SecondNameId;
+    qint32 CommonNameId;
+    Date DateOfBirthR;
+    qint16 YearOfBirthR;
+    qint32 NationR;
+    qint32 SecondNationR;
+    quint8 InternationalAppsR;
+    quint8 InternationalGoalsR;
+    qint32 NationContractedR;
+    qint8 JobForNationR;
+    Date DateJoinedNationR;
+    Date ContractExpiresNationR;
+    qint32 ClubContractedR;
+    qint8 JobForClubR;
+    Date DateJoinedClubR;
+    Date ContractExpiresClubR;
+    qint32 EstimatedWageR;
+    qint32 EstimatedValueR;
+    qint8 AdaptabilityR;
+    qint8 AmbitionR;
+    qint8 DeterminationR;
+    qint8 LoyaltyR;
+    qint8 PressureR;
+    qint8 ProfessionalismR;
+    qint8 SportsmanshipR;
+    qint8 TemperamentR;
+    qint8 PlayingSquadR;
+    qint8 ClassificationR;
+    qint8 ClubValuationR;
+    qint32 PlayerDataR;
+    qint32 PreferencesR; // Version 0x02 - New ptr type
+    qint32 NonPlayerDataR;
+
+    // Runtime data
+    qint8 EuroSquadFlagR;
+
+    // Database data
     int ID;
     PtrFirstName FirstName;
     PtrSecondName SecondName;
@@ -71,12 +110,20 @@ private:
     // Runtime data
     char EuroSquadFlag;
 
+    // File I/O
+    void read(QDataStream &in);
+
 public:
     // Constructor
-    Staff();
+    Staff();    
+
+    // File I/O
+    static qint32 readAll(QDataStream &in, const qint32 &count);
 
     // Container
     static QVector<Staff> db;
+
+    void fillFromDatabase(int sr);
 
     // Data validation
     static void validate();

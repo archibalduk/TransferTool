@@ -1,5 +1,7 @@
 #include "date.h"
 #include <QStringList>
+#include <QDebug>
+#include <QString>
 
 
 /* ==================== */
@@ -57,9 +59,47 @@ short Date::year()
     return m_Year;
 }
 
+/* ============================== */
+/*      Operator Overloading      */
+/* ============================== */
+
+// --- Read data from a data stream --- //
+QDataStream & operator >>(QDataStream &in, Date &data)
+{
+    // Buffer
+    qint16 day;  // days from Jan 1st.
+    qint16 year;
+    qint32 isLeapYear;  // = 1 if year is a leapyear, 0 otherwise.
+
+    // Read SI data
+
+    /*char * x;
+    in.readRawData(x, 2);
+*/
+    in >> day >> year >> isLeapYear;
+    if(year == 1965){
+        //qDebug() <<  x;
+    }
+    if((year == 1965 && (day == 73 || day ==74 || day == 72) ) ||(year == 1968 && (day == 141 || day ==140  || day ==142) ))
+    qDebug() << "" + QString::number(day) + " " + QString::number(year) + " " + QString::number(isLeapYear);
+
+    // Convert to QDate
+    data.set(day, year);
+
+    return in;
+}
+
 /* ================== */
 /*      Set Data      */
 /* ================== */
+
+// --- Set from SI Date --- //
+void Date::set(qint16 &day, qint16 &year)
+{
+
+    m_Year = year;
+    m_Day = day;
+}
 
 // --- Set from QDate --- //
 void Date::set(const QDate &date, const int yearAdjustment)

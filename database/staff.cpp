@@ -1,5 +1,6 @@
 #include "staff.h"
 #include <QStringList>
+#include <QDebug>
 
 // --- Static data --- //
 QVector<Staff> Staff::db;
@@ -18,6 +19,115 @@ Staff::Staff() :
     JobForClub.set(Job::PLAYER);
     PlayingSquad.set(Squad::CLUB_SENIOR_SQUAD);
 }
+
+/* ================= */
+/*      File I/O     */
+/* ================= */
+
+void Staff::read(QDataStream &in)
+{
+    in  >> IDR
+        >> FirstNameId
+        >> SecondNameId
+        >> CommonNameId
+        >> DateOfBirthR
+        >> YearOfBirthR
+        >> NationR
+        >> SecondNationR
+        >> InternationalAppsR
+        >> InternationalGoalsR
+        >> NationContractedR
+        >> JobForNationR
+        >> DateJoinedNationR
+        >> ContractExpiresNationR
+        >> ClubContractedR
+        >> JobForClubR
+        >> DateJoinedClubR
+        >> ContractExpiresClubR
+        >> EstimatedWageR
+        >> EstimatedValueR
+        >> AdaptabilityR
+        >> AmbitionR
+        >> DeterminationR
+        >> LoyaltyR
+        >> PressureR
+        >> ProfessionalismR
+        >> SportsmanshipR
+        >> TemperamentR
+        >> PlayingSquadR
+        >> ClassificationR
+        >> ClubValuationR
+        >> PlayerDataR
+        >> PreferencesR // Version 0x02 - New ptr type
+        >> NonPlayerDataR
+        // Runtime data
+        >> EuroSquadFlagR;
+
+    // Validate/set Year of Birth from DOB
+    const qint16 yob = DateOfBirth.year();
+    if(yob > 1900)
+        YearOfBirthR = yob;
+
+    ID = IDR;
+    FirstName.set(FirstNameId);
+    SecondName.set(SecondNameId);
+    CommonName.set(CommonNameId);
+
+    DateOfBirth = DateOfBirthR;
+        if(SecondName.isPointer() && SecondNameId == 107372){ //&& SecondName.getMatchText() == "kuciak"){
+            int yearAdjustment = 0;
+            bool b =true;
+            qDebug() << SecondName.getMatchText()+DateOfBirthR.getMatchText(yearAdjustment, b);
+        }
+        //int yearAdjustment = 0;
+       // bool b =true;
+       // qDebug() << ID+IDR+DateOfBirthR.getMatchText(yearAdjustment, b);
+    YearOfBirth.validate(YearOfBirthR);
+    Nation = NationR;
+    SecondNation= SecondNationR;
+    InternationalApps.set( InternationalAppsR);
+    InternationalGoals.set(InternationalGoalsR);
+    NationContracted= NationContractedR;
+    JobForNation.set(JobForNationR);
+    DateJoinedNation= DateJoinedNationR;
+    ContractExpiresNation= ContractExpiresNationR;
+    ClubContracted= ClubContractedR;
+    JobForClub.set( JobForClubR);
+    DateJoinedClub= DateJoinedClubR;
+    ContractExpiresClub= ContractExpiresClubR;
+   EstimatedWage.set(  EstimatedWageR);
+    EstimatedValue= EstimatedValueR;
+     Adaptability.set( AdaptabilityR);
+    Ambition.set( AmbitionR);
+    Determination.set( DeterminationR);
+   Loyalty.set(LoyaltyR);
+    Pressure.set( PressureR);
+   Professionalism .set( ProfessionalismR);
+   Sportsmanship .set( SportsmanshipR);
+   Temperament .set( TemperamentR);
+    PlayingSquad.set( PlayingSquadR);
+   Classification .set( ClassificationR);
+     ClubValuation.set( ClubValuationR);
+    PlayerData= PlayerDataR;
+   Preferences = PreferencesR; // Version 0x02 - New ptr type
+  NonPlayerData  = NonPlayerDataR;
+    // Runtime data
+   EuroSquadFlag = EuroSquadFlagR;
+}
+
+// --- Read all data --- //
+qint32 Staff::readAll(QDataStream &in, const qint32 &count)
+{
+    for(qint32 i = 0; i < count; ++i)
+    {
+        Staff tmp;
+        tmp.read(in);
+        db.push_back(tmp);
+     }
+
+    return db.size();
+}
+
 
 
 /* ========================= */
@@ -297,7 +407,13 @@ void Staff::createHash(QHash<QString, int> &dobHash, QHash<QString, int> &yobHas
             }
 
             // Add full name if available
-            if(itr.FirstName.isPointer() && itr.SecondName.isPointer()) {                
+
+            if(itr.FirstName.isPointer() && itr.SecondName.isPointer()) {
+                if(itr.SecondName.getMatchText() == "kuciak" ){
+QString x = QString("%1 %2 %3").arg(itr.FirstName.getMatchText()).arg(itr.SecondName.getMatchText()).arg(dob);
+qDebug() << itr.SecondName.id + " " +x;}
+
+
                 dobHash.insert(QString("%1 %2 %3").arg(itr.FirstName.getMatchText()).arg(itr.SecondName.getMatchText()).arg(dob), itr.ID);
                 yobHash.insert(QString("%1 %2 %3").arg(itr.FirstName.getMatchText()).arg(itr.SecondName.getMatchText()).arg(yob), itr.ID);
             }
