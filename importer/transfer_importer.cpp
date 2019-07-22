@@ -420,9 +420,11 @@ void TransferImporter::process(const QTime &timer)
 
     if(m_IsPlayerSheet)
         Club::createHash(clubs, false);                 // Add DB short names only if its player sheet
-    vlookup.load(clubs);                            // Add VLookup names
-    vlookup.set(VLookupHash::CLUBS_PREFIX_SUFFIX);  // Club prefix/suffixes
-    vlookup.load(clubPrefixSuffix);                 // Add prefix/suffixes
+    if(m_RadioButton[CLUB_LOOKUP_ENABLED]->isChecked()){
+        vlookup.load(clubs);                            // Add VLookup names
+        vlookup.set(VLookupHash::CLUBS_PREFIX_SUFFIX);  // Club prefix/suffixes
+        vlookup.load(clubPrefixSuffix);                 // Add prefix/suffixes
+    }
 
     // Nation hash table
     this->incrementProgressBar("Creating nation list");
