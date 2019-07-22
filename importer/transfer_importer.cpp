@@ -150,189 +150,214 @@ void TransferImporter::onImport()
         // Progress bar
         this->incrementProgressBar();    // Comment out this line if the above Display Name is being used
 
-        // Skip any rows with a blank DOB column
-        if(m_Spreadsheet->string(row, DATE_OF_BIRTH).isEmpty())
-            continue;
+        if(m_IsPlayerSheet){
+            // Skip any rows with a blank DOB column
+            if(m_Spreadsheet->string(row, DATE_OF_BIRTH).isEmpty())
+                continue;
 
-        // Columns positions
-        const unsigned int posFurthestRightColumn = m_Spreadsheet->data()->at(row).size()-1;  // Furthest right column
-        const unsigned int posIsProtected = posFurthestRightColumn;
-        const unsigned int posLoanClubId = posFurthestRightColumn -1;
-        const unsigned int posClubId = posFurthestRightColumn - 2;
-        const unsigned int posNationSecondaryId = posFurthestRightColumn - 3;
-        const unsigned int posNationPrimaryId = posFurthestRightColumn - 4;
-        const unsigned int posStaffId = posFurthestRightColumn - 5;
+            // Columns positions
+            const unsigned int posFurthestRightColumn = m_Spreadsheet->data()->at(row).size()-1;  // Furthest right column
+            const unsigned int posIsProtected = posFurthestRightColumn;
+            const unsigned int posLoanClubId = posFurthestRightColumn -1;
+            const unsigned int posClubId = posFurthestRightColumn - 2;
+            const unsigned int posNationSecondaryId = posFurthestRightColumn - 3;
+            const unsigned int posNationPrimaryId = posFurthestRightColumn - 4;
+            const unsigned int posStaffId = posFurthestRightColumn - 5;
 
-        // Id numbers
-        int staffId = m_Spreadsheet->number(row, posStaffId);
+            // Id numbers
+            int staffId = m_Spreadsheet->number(row, posStaffId);
 
-        // Skip any invalid staff Ids (there should not be any)
-        if(staffId == Spreadsheet::NOT_A_NUMBER) {
-            continue;
-        }
-
-        // Determine relevant club ID to use according to whether the player is on loan
-        QVariant club = m_Spreadsheet->variant(row, posClubId);
-        QVariant loanClub = m_Spreadsheet->variant(row, posLoanClubId);
-
-        if(loanClub.toInt() >= VALID)   // Use the loan club if the column is not blank
-            club = loanClub;
-
-        // Determine whether the player is protected
-        const bool isProtected = m_Spreadsheet->variant(row, posIsProtected).toBool();
-
-        // For flagging whether new staff to be added
-        bool isNewStaff = (staffId < VALID);
-
-        /* Add new staff */
-        if(isNewStaff) {
-            // Staff data
-            Staff s;
-            staffId = s.ID;
-
-            // Date & year of birth
-            s.DateOfBirth.set(m_Spreadsheet->matchDateString(row, DATE_OF_BIRTH), m_YearAdjustment->value());
-            s.YearOfBirth.validate(s.DateOfBirth.year());
-
-            // Player data
-            Player p;
-            s.PlayerData = p.ID;
-
-            // Staff preferences data
-            StaffPreferences sp;
-            s.Preferences = sp.ID;
-
-            // Add to database
-            Player::db.push_back(p);
-            StaffPreferences::db.push_back(sp);
-            Staff::db.push_back(s);
-        }
-
-        /* Edit new and existing staff */
-        // Staff pointer
-        Staff *staff = &(Staff::db[staffId]);
-
-        // Nationality
-        staff->Nation.setNoCheck(m_Spreadsheet->variant(row, posNationPrimaryId));
-        staff->SecondNation.setNoCheck(m_Spreadsheet->variant(row, posNationSecondaryId));
-
-        // Contract
-        staff->ClubContracted.setNoCheck(club);
-        staff->DateJoinedClub.set(m_Spreadsheet->variant(row, CONTRACT_START), m_YearAdjustment->value());
-        staff->ContractExpiresClub.set(m_Spreadsheet->variant(row, CONTRACT_END), m_YearAdjustment->value());
-
-        // International stats
-        staff->InternationalApps.set(m_Spreadsheet->variant(row, INT_CAPS));
-        staff->InternationalGoals.set(m_Spreadsheet->variant(row, INT_GOALS));
-
-        // Value
-        staff->EstimatedValue.set(m_Spreadsheet->variant(row, VALUE), m_ExchangeRate->value());
-
-        // Attributes
-        Player *player = staff->PlayerData.data();
-
-        if(player != nullptr) {
-
-            // Protected player items
-            if(!isProtected)
-            {
-                // Positions
-                player->Goalkeeper.set(m_Spreadsheet->variant(row, GK));
-                player->Sweeper.set(m_Spreadsheet->variant(row, SW));
-                player->Defender.set(m_Spreadsheet->variant(row, D));
-                player->DefensiveMidfielder.set(m_Spreadsheet->variant(row, DM));
-                player->Midfielder.set(m_Spreadsheet->variant(row, M));
-                player->AttackingMidfielder.set(m_Spreadsheet->variant(row, AM));
-                player->Attacker.set(m_Spreadsheet->variant(row, ST));
-                player->WingBack.set(m_Spreadsheet->variant(row, WB));
-                player->FreeRole.set(m_Spreadsheet->variant(row, FR));
-
-                // Sides
-                player->RightSide.set(m_Spreadsheet->variant(row, SIDE_RIGHT));
-                player->LeftSide.set(m_Spreadsheet->variant(row, SIDE_LEFT));
-                player->Central.set(m_Spreadsheet->variant(row, SIDE_CENTRE));
-
-                // Footedness
-                player->RightFoot.set(m_Spreadsheet->variant(row, FOOT_RIGHT));
-                player->LeftFoot.set(m_Spreadsheet->variant(row, FOOT_LEFT));
-
-                // Ability
-                player->CurrentAbility.set(m_Spreadsheet->variant(row, ABILITY_CURRENT));
-                player->PotentialAbility.set(m_Spreadsheet->variant(row, ABILITY_POTENTIAL));
-
-                // Reputation
-                player->HomeReputation.set(m_Spreadsheet->variant(row, REPUTATION_HOME));
-                player->CurrentReputation.set(m_Spreadsheet->variant(row, REPUTATION_CURRENT));
+            // Skip any invalid staff Ids (there should not be any)
+            if(staffId == Spreadsheet::NOT_A_NUMBER) {
+                continue;
             }
 
-            // Unprotected player items:
+            // Determine relevant club ID to use according to whether the player is on loan
+            QVariant club = m_Spreadsheet->variant(row, posClubId);
+            QVariant loanClub = m_Spreadsheet->variant(row, posLoanClubId);
 
-            // World Reputation
-            bool resultWR = player->WorldReputation.setFromTransferValue(m_Spreadsheet->variant(row, VALUE));
+            if(loanClub.toInt() >= VALID)   // Use the loan club if the column is not blank
+                club = loanClub;
 
-            // Wage (only if World Rep was successfully updated)
-            if(resultWR == true)
-                staff->EstimatedWage.setFromWorldReputation(player->WorldReputation.get());
+            // Determine whether the player is protected
+            const bool isProtected = m_Spreadsheet->variant(row, posIsProtected).toBool();
 
-            // Squad number
-            player->SquadNumber.set(m_Spreadsheet->variant(row, SQUAD_NUMBER));
-        }
+            // For flagging whether new staff to be added
+            bool isNewStaff = (staffId < VALID);
 
-        /* Setting name of new staff */
-        /* This can only be done once nationality has been set */
+            /* Add new staff */
+            if(isNewStaff) {
+                // Staff data
+                Staff s;
+                staffId = s.ID;
 
-        /* First name in first column, second name in second column and common name in third column */
-        if(isNewStaff && m_ColumnAdjustment == 2)
-        {
-            const QString n1 = m_Spreadsheet->string(row, NAME).simplified();
-            const QString n2 = m_Spreadsheet->string(row, NAME+1).simplified();
-            const QString cn = m_Spreadsheet->string(row, NAME+2).simplified();
-            staff->FirstName.set(n1, staff->Nation.get());
-            staff->SecondName.set(n2, staff->Nation.get());
-            staff->CommonName.set(cn, staff->Nation.get());
-        }
+                // Date & year of birth
+                s.DateOfBirth.set(m_Spreadsheet->matchDateString(row, DATE_OF_BIRTH), m_YearAdjustment->value());
+                s.YearOfBirth.validate(s.DateOfBirth.year());
 
-        /* First name in first column and second name in second column */
-        else if(isNewStaff && m_ColumnAdjustment == 1)
-        {
-            const QString n1 = m_Spreadsheet->string(row, NAME).simplified();
-            const QString n2 = m_Spreadsheet->string(row, NAME+1).simplified();
+                // Player data
+                Player p;
+                s.PlayerData = p.ID;
 
-            // Common name
-            if(n1.isEmpty() || n2.isEmpty())
+                // Staff preferences data
+                StaffPreferences sp;
+                s.Preferences = sp.ID;
+
+                // Add to database
+                Player::db.push_back(p);
+                StaffPreferences::db.push_back(sp);
+                Staff::db.push_back(s);
+            }
+
+            /* Edit new and existing staff */
+            // Staff pointer
+            Staff *staff = &(Staff::db[staffId]);
+
+            // Nationality
+            staff->Nation.setNoCheck(m_Spreadsheet->variant(row, posNationPrimaryId));
+            staff->SecondNation.setNoCheck(m_Spreadsheet->variant(row, posNationSecondaryId));
+
+            // Contract
+            staff->ClubContracted.setNoCheck(club);
+            staff->DateJoinedClub.set(m_Spreadsheet->variant(row, CONTRACT_START), m_YearAdjustment->value());
+            staff->ContractExpiresClub.set(m_Spreadsheet->variant(row, CONTRACT_END), m_YearAdjustment->value());
+
+            // International stats
+            staff->InternationalApps.set(m_Spreadsheet->variant(row, INT_CAPS));
+            staff->InternationalGoals.set(m_Spreadsheet->variant(row, INT_GOALS));
+
+            // Value
+            staff->EstimatedValue.set(m_Spreadsheet->variant(row, VALUE), m_ExchangeRate->value());
+
+            // Attributes
+            Player *player = staff->PlayerData.data();
+
+            if(player != nullptr) {
+
+                // Protected player items
+                if(!isProtected)
+                {
+                    // Positions
+                    player->Goalkeeper.set(m_Spreadsheet->variant(row, GK));
+                    player->Sweeper.set(m_Spreadsheet->variant(row, SW));
+                    player->Defender.set(m_Spreadsheet->variant(row, D));
+                    player->DefensiveMidfielder.set(m_Spreadsheet->variant(row, DM));
+                    player->Midfielder.set(m_Spreadsheet->variant(row, M));
+                    player->AttackingMidfielder.set(m_Spreadsheet->variant(row, AM));
+                    player->Attacker.set(m_Spreadsheet->variant(row, ST));
+                    player->WingBack.set(m_Spreadsheet->variant(row, WB));
+                    player->FreeRole.set(m_Spreadsheet->variant(row, FR));
+
+                    // Sides
+                    player->RightSide.set(m_Spreadsheet->variant(row, SIDE_RIGHT));
+                    player->LeftSide.set(m_Spreadsheet->variant(row, SIDE_LEFT));
+                    player->Central.set(m_Spreadsheet->variant(row, SIDE_CENTRE));
+
+                    // Footedness
+                    player->RightFoot.set(m_Spreadsheet->variant(row, FOOT_RIGHT));
+                    player->LeftFoot.set(m_Spreadsheet->variant(row, FOOT_LEFT));
+
+                    // Ability
+                    player->CurrentAbility.set(m_Spreadsheet->variant(row, ABILITY_CURRENT));
+                    player->PotentialAbility.set(m_Spreadsheet->variant(row, ABILITY_POTENTIAL));
+
+                    // Reputation
+                    player->HomeReputation.set(m_Spreadsheet->variant(row, REPUTATION_HOME));
+                    player->CurrentReputation.set(m_Spreadsheet->variant(row, REPUTATION_CURRENT));
+                }
+
+                // Unprotected player items:
+
+                // World Reputation
+                bool resultWR = player->WorldReputation.setFromTransferValue(m_Spreadsheet->variant(row, VALUE));
+
+                // Wage (only if World Rep was successfully updated)
+                if(resultWR == true)
+                    staff->EstimatedWage.setFromWorldReputation(player->WorldReputation.get());
+
+                // Squad number
+                player->SquadNumber.set(m_Spreadsheet->variant(row, SQUAD_NUMBER));
+            }
+
+            /* Setting name of new staff */
+            /* This can only be done once nationality has been set */
+
+            /* First name in first column, second name in second column and common name in third column */
+            if(isNewStaff && m_ColumnAdjustment == 2)
             {
-                const QString cn = QString("%1%2").arg(n1).arg(n2);
+                const QString n1 = m_Spreadsheet->string(row, NAME).simplified();
+                const QString n2 = m_Spreadsheet->string(row, NAME+1).simplified();
+                const QString cn = m_Spreadsheet->string(row, NAME+2).simplified();
+                staff->FirstName.set(n1, staff->Nation.get());
+                staff->SecondName.set(n2, staff->Nation.get());
                 staff->CommonName.set(cn, staff->Nation.get());
             }
-            // Full name
-            else
+
+            /* First name in first column and second name in second column */
+            else if(isNewStaff && m_ColumnAdjustment == 1)
             {
-                staff->FirstName.set(n1, staff->Nation.get());
-                staff->SecondName.set(n2, staff->Nation.get());
+                const QString n1 = m_Spreadsheet->string(row, NAME).simplified();
+                const QString n2 = m_Spreadsheet->string(row, NAME+1).simplified();
+
+                // Common name
+                if(n1.isEmpty() || n2.isEmpty())
+                {
+                    const QString cn = QString("%1%2").arg(n1).arg(n2);
+                    staff->CommonName.set(cn, staff->Nation.get());
+                }
+                // Full name
+                else
+                {
+                    staff->FirstName.set(n1, staff->Nation.get());
+                    staff->SecondName.set(n2, staff->Nation.get());
+                }
             }
-        }
 
-        /* Full name in first column (i.e. m_ColumnAdjustment is zero) */
-        else if(isNewStaff)
-        {
-            // Name buffer
-            const QString n = m_Spreadsheet->string(row, NAME).simplified(); // Removes any whitespaces
-
-            // Index of first space in text
-            const int space = n.indexOf(" ", 0, Qt::CaseInsensitive);
-
-            // Common name (no spaces in text)
-            if(space < 0)
+            /* Full name in first column (i.e. m_ColumnAdjustment is zero) */
+            else if(isNewStaff)
             {
-                staff->CommonName.set(n, staff->Nation.get());
+                // Name buffer
+                const QString n = m_Spreadsheet->string(row, NAME).simplified(); // Removes any whitespaces
+
+                // Index of first space in text
+                const int space = n.indexOf(" ", 0, Qt::CaseInsensitive);
+
+                // Common name (no spaces in text)
+                if(space < 0)
+                {
+                    staff->CommonName.set(n, staff->Nation.get());
+                }
+                // Full name
+                else
+                {
+                    const QString n1 = n.left(space);
+                    const QString n2 = n.right(n.size()-space-1);
+                    staff->FirstName.set(n1, staff->Nation.get());
+                    staff->SecondName.set(n2, staff->Nation.get());
+                }
             }
-            // Full name
-            else
-            {
-                const QString n1 = n.left(space);
-                const QString n2 = n.right(n.size()-space-1);
-                staff->FirstName.set(n1, staff->Nation.get());
-                staff->SecondName.set(n2, staff->Nation.get());
+        } else {
+            // Columns positions
+            const unsigned int posFurthestRightColumn = m_Spreadsheet->data()->at(row).size()-1;  // Furthest right column
+            const unsigned int posClubId = posFurthestRightColumn;
+
+            // Determine relevant club ID to use according to whether the player is on loan
+            QVariant clubId = m_Spreadsheet->variant(row, posClubId);
+
+            // Skip any invalid club Ids
+            if(clubId.toInt() == Spreadsheet::NOT_A_NUMBER || !(clubId.toInt() >= VALID)) {
+                continue;
+            }
+
+            /* Edit existing club */
+            // Club pointer
+            Club *club = &(Club::dbDom[clubId.toInt()]);
+
+            // Reputation
+            short newRep = m_Spreadsheet->variant(row, CLUB_REPUTATION).toInt();
+            if(newRep >= 0 && newRep <= 20){
+                // multiply by 500 because the 1-20 values displayed in editor are actually 500 times lower than the actual values stored in the database
+                club->Reputation = newRep*500;
             }
         }
     }
@@ -353,6 +378,7 @@ void TransferImporter::onImport()
     m_SaveButton->setFocus();
 }
 
+
 // --- Process the data and identify the relevant ID numbers --- //
 void TransferImporter::process(const QTime &timer)
 {
@@ -364,9 +390,15 @@ void TransferImporter::process(const QTime &timer)
     int counterPlayerUnmatched = 0;
     int counterPlayerProtected = 0;
     int counterErrorRows = 0;
+    int counterClubMatches = 0;
+    int counterClubUnmatched = 0;
 
     // Progress bar
-    m_ProgressBar->setRange(0, 4 + m_Spreadsheet->data()->size());
+    if(m_IsPlayerSheet){
+        m_ProgressBar->setRange(0, 4 + m_Spreadsheet->data()->size());
+    } else {
+        m_ProgressBar->setRange(0, 2 + m_Spreadsheet->data()->size());
+    }
 
     // Hash tables
     QHash<QString, int> clubs;
@@ -383,10 +415,11 @@ void TransferImporter::process(const QTime &timer)
     // Club hash table
     this->incrementProgressBar("Creating club list");
 
-    if(m_RadioButton[CLUB_NAMES_SHORT_AND_LONG]->isChecked())
-        Club::createHash(clubs, true);              // Add DB long names (if the relevant RadioButton is checked)
+    if(m_RadioButton[CLUB_NAMES_SHORT_AND_LONG]->isChecked() || !m_IsPlayerSheet)
+        Club::createHash(clubs, true);              // Add DB long names (if the relevant RadioButton is checked or if its club sheet)
 
-    Club::createHash(clubs, false);                 // Add DB short names
+    if(m_IsPlayerSheet)
+        Club::createHash(clubs, false);                 // Add DB short names only if its player sheet
     vlookup.load(clubs);                            // Add VLookup names
     vlookup.set(VLookupHash::CLUBS_PREFIX_SUFFIX);  // Club prefix/suffixes
     vlookup.load(clubPrefixSuffix);                 // Add prefix/suffixes
@@ -397,21 +430,26 @@ void TransferImporter::process(const QTime &timer)
     vlookup.set(VLookupHash::NATIONS);
     vlookup.load(nations);          // Add VLookup names
 
-    // Staff hash tables
-    this->incrementProgressBar("Creating staff list");
-    Staff::createHash(staffMain, staffFailSafe, Staff::SCOPE_PLAYERS, m_YearAdjustment->value());  
+    if(m_IsPlayerSheet){
+        // Staff hash tables
+        this->incrementProgressBar("Creating staff list");
+        Staff::createHash(staffMain, staffFailSafe, Staff::SCOPE_PLAYERS, m_YearAdjustment->value());
 
-    // Load protected players list
-    this->incrementProgressBar("Creating protected staff list");
-    this->loadProtectedPlayersList(staffMain);
+        // Load protected players list
+        this->incrementProgressBar("Creating protected staff list");
+        this->loadProtectedPlayersList(staffMain);
 
-    // Add header columns
-    m_Spreadsheet->addHeader("Staff ID", 0);
-    m_Spreadsheet->addHeader("Nation1 ID", 0);
-    m_Spreadsheet->addHeader("Nation2 ID", 0);
-    m_Spreadsheet->addHeader("Club ID", 0);
-    m_Spreadsheet->addHeader("Loan Club ID", 0);
-    m_Spreadsheet->addHeader("Protected?", 0);
+        // Add header columns
+        m_Spreadsheet->addHeader("Staff ID", 0);
+        m_Spreadsheet->addHeader("Nation1 ID", 0);
+        m_Spreadsheet->addHeader("Nation2 ID", 0);
+        m_Spreadsheet->addHeader("Club ID", 0);
+        m_Spreadsheet->addHeader("Loan Club ID", 0);
+        m_Spreadsheet->addHeader("Protected?", 0);
+    } else {
+        // Add header columns
+        m_Spreadsheet->addHeader("Club ID", 0);
+    }
 
     // Prepare progress bar label
     m_ProgressLabel->setText("Processing spreadsheet");
@@ -423,112 +461,139 @@ void TransferImporter::process(const QTime &timer)
         // Progress bar
         this->incrementProgressBar();
 
-        // Staff
-        int staffId = BLANK;
-        QString staffText;
+        if(m_IsPlayerSheet){
+            // Staff
+            int staffId = BLANK;
+            QString staffText;
 
-        // Set name (where the full name is in the first column)
-        if(m_ColumnAdjustment == 0)
-        {
-            staffText = m_Spreadsheet->matchString(row, NAME);
-        }
-
-        // Set name where:
-        // (1) the first name is in the first column;
-        // (2) the second name is in the second column; and
-        // (3) the common name is in the third column
-        else
-        {
-            const QString firstname = m_Spreadsheet->matchString(row, NAME);
-            const QString secondname = m_Spreadsheet->matchString(row, NAME+1);
-            const QString commonname = m_Spreadsheet->matchString(row, NAME+2);
-
-            // Use first name + surname if no common name is present
-            if(commonname.isEmpty())
+            // Set name (where the full name is in the first column)
+            if(m_ColumnAdjustment == 0)
             {
-                staffText = QString("%1 %2")
-                        .arg(firstname)
-                        .arg(secondname);
+                staffText = m_Spreadsheet->matchString(row, NAME);
             }
-            // Use common name if one has been entered
+
+            // Set name where:
+            // (1) the first name is in the first column;
+            // (2) the second name is in the second column; and
+            // (3) the common name is in the third column
             else
             {
-                staffText = commonname;
+                const QString firstname = m_Spreadsheet->matchString(row, NAME);
+                const QString secondname = m_Spreadsheet->matchString(row, NAME+1);
+                const QString commonname = m_Spreadsheet->matchString(row, NAME+2);
+
+                // Use first name + surname if no common name is present
+                if(commonname.isEmpty())
+                {
+                    staffText = QString("%1 %2")
+                            .arg(firstname)
+                            .arg(secondname);
+                }
+                // Use common name if one has been entered
+                else
+                {
+                    staffText = commonname;
+                }
+
             }
 
-        }
-
-        // Match the staff against the database
-        if(!staffText.isEmpty()) {  // Only proceed if the cell is not empty
-            // Staff date of birth
-            QString yob = m_Spreadsheet->string(row, DATE_OF_BIRTH).right(4);
-            QString dob = m_Spreadsheet->matchDateString(row, DATE_OF_BIRTH);
-
             // Match the staff against the database
-            staffId = staffMain.value(QString("%1 %2").arg(staffText).arg(dob), NO_MATCH);
+            if(!staffText.isEmpty()) {  // Only proceed if the cell is not empty
+                // Staff date of birth
+                QString yob = m_Spreadsheet->string(row, DATE_OF_BIRTH).right(4);
+                QString dob = m_Spreadsheet->matchDateString(row, DATE_OF_BIRTH);
 
-            // Use failsafe hash (i.e. year of birth) if no match found using main hash (i.e. date of birth)
-            // Note: removed as it was causing players to be considered equal if their names and YOB only were equal
-            /*if(staffId == NO_MATCH)
-                staffId = staffFailSafe.value(QString("%1 %2").arg(staffText).arg(yob), NO_MATCH);*/
-        }
+                // Match the staff against the database
+                staffId = staffMain.value(QString("%1 %2").arg(staffText).arg(dob), NO_MATCH);
 
-        // Check for protected staff (vector will be empty if the setting is disabled)
-        bool isProtected = (staffId >= VALID && m_ProtectedPlayers.contains(staffId));
+                // Use failsafe hash (i.e. year of birth) if no match found using main hash (i.e. date of birth)
+                // Note: removed as it was causing players to be considered equal if their names and YOB only were equal
+                /*if(staffId == NO_MATCH)
+                    staffId = staffFailSafe.value(QString("%1 %2").arg(staffText).arg(yob), NO_MATCH);*/
+            }
 
-        // Club
-        int clubId = BLANK;
-        QString clubText = m_Spreadsheet->matchString(row, CLUB);
+            // Check for protected staff (vector will be empty if the setting is disabled)
+            bool isProtected = (staffId >= VALID && m_ProtectedPlayers.contains(staffId));
 
-        // Match the club against the database
-        if(!clubText.isEmpty()) {   // Only proceed if the cell is not empty
-            clubId = clubs.value(clubText, NO_MATCH);
+            // Club
+            int clubId = BLANK;
+            QString clubText = m_Spreadsheet->matchString(row, CLUB);
 
-            // Try prefix/suffixes if no exact match can be found
+            // Match the club against the database
+            if(!clubText.isEmpty()) {   // Only proceed if the cell is not empty
+                clubId = clubs.value(clubText, NO_MATCH);
+
+                // Try prefix/suffixes if no exact match can be found
+                if(clubId == NO_MATCH)
+                    clubId = vlookup.lookupPrefixSuffix(clubText, clubPrefixSuffix, clubs, NO_MATCH);
+            }
+
+            // Loan Club
+            int loanClubId = BLANK;
+            QString loanClubText = m_Spreadsheet->matchString(row, ON_LOAN_FROM);
+
+            // Match the club against the database
+            if(!loanClubText.isEmpty()) {   // Only proceed if the cell is not empty
+                loanClubId = clubs.value(loanClubText, NO_MATCH);
+
+                // Try prefix/suffixes if no exact match can be found
+                if(loanClubId == NO_MATCH)
+                    loanClubId = vlookup.lookupPrefixSuffix(loanClubText, clubPrefixSuffix, clubs, NO_MATCH);
+            }
+
+            // Primary nation (blank means no nationality)
+            QString primaryNationText = m_Spreadsheet->matchString(row, NATION_1);
+            int primaryNationId = nations.value(primaryNationText, NO_MATCH);
+
+            // Secondary nation (blank means no nationality)
+            QString secondaryNationText = m_Spreadsheet->matchString(row, NATION_2);
+            int secondaryNationId = nations.value(secondaryNationText, NO_MATCH);
+
+            // Add data to spreadsheet
+            m_Spreadsheet->add(row, staffId);
+            m_Spreadsheet->add(row, primaryNationId);
+            m_Spreadsheet->add(row, secondaryNationId);
+            m_Spreadsheet->add(row, clubId);
+            m_Spreadsheet->add(row, loanClubId);
+            m_Spreadsheet->add(row, isProtected);
+
+            // Increment counters
+            if(staffId == NO_MATCH)
+                ++counterPlayerUnmatched;
+            else
+                ++counterPlayerMatches;
+
+            if(isProtected)
+                ++counterPlayerProtected;
+
+            if(clubId == NO_MATCH || loanClubId == NO_MATCH || primaryNationId == NO_MATCH || secondaryNationId == NO_MATCH)
+                ++counterErrorRows;
+        } else {
+            // Club
+            int clubId = BLANK;
+            QString clubText = m_Spreadsheet->matchString(row, CLUB_NAME);
+
+            // Match the club against the database
+            if(!clubText.isEmpty()) {   // Only proceed if the cell is not empty
+                clubId = clubs.value(clubText, NO_MATCH);
+
+                // Try prefix/suffixes if no exact match can be found
+                if(clubId == NO_MATCH)
+                    clubId = vlookup.lookupPrefixSuffix(clubText, clubPrefixSuffix, clubs, NO_MATCH);
+            }
+
+            // Add data to spreadsheet
+            m_Spreadsheet->add(row, clubId);
+
+            // Increment counters
             if(clubId == NO_MATCH)
-                clubId = vlookup.lookupPrefixSuffix(clubText, clubPrefixSuffix, clubs, NO_MATCH);
+                ++counterClubUnmatched;
+            else
+                ++counterClubMatches;
+
+            if(clubId == NO_MATCH)
+                ++counterErrorRows;
         }
-
-        // Loan Club
-        int loanClubId = BLANK;
-        QString loanClubText = m_Spreadsheet->matchString(row, ON_LOAN_FROM);
-
-        // Match the club against the database
-        if(!loanClubText.isEmpty()) {   // Only proceed if the cell is not empty
-            loanClubId = clubs.value(loanClubText, NO_MATCH);
-
-            // Try prefix/suffixes if no exact match can be found
-            if(loanClubId == NO_MATCH)
-                loanClubId = vlookup.lookupPrefixSuffix(loanClubText, clubPrefixSuffix, clubs, NO_MATCH);
-        }
-
-        // Primary nation (blank means no nationality)
-        QString primaryNationText = m_Spreadsheet->matchString(row, NATION_1);
-        int primaryNationId = nations.value(primaryNationText, NO_MATCH);
-
-        // Primary nation (blank means no nationality)
-        QString secondaryNationText = m_Spreadsheet->matchString(row, NATION_2);
-        int secondaryNationId = nations.value(secondaryNationText, NO_MATCH);
-
-        // Add data to spreadsheet
-        m_Spreadsheet->add(row, staffId);
-        m_Spreadsheet->add(row, primaryNationId);
-        m_Spreadsheet->add(row, secondaryNationId);
-        m_Spreadsheet->add(row, clubId);
-        m_Spreadsheet->add(row, loanClubId);
-        m_Spreadsheet->add(row, isProtected);
-
-        // Increment counters
-        if(staffId == NO_MATCH)
-            ++counterPlayerUnmatched;
-        else
-            ++counterPlayerMatches;
-
-        if(isProtected)
-            ++counterPlayerProtected;
-
-        if(clubId == NO_MATCH || loanClubId == NO_MATCH || primaryNationId == NO_MATCH || secondaryNationId == NO_MATCH)
-            ++counterErrorRows;
     }
 
     // Stop timer
@@ -537,10 +602,16 @@ void TransferImporter::process(const QTime &timer)
                          m_TimerItem[PROCESS_PER_RECORD]);
 
     // Set summary items
-    m_SummaryItem[SUMMARY_PLAYER_MATCHES]->setValue(counterPlayerMatches);
+    if(m_IsPlayerSheet){
+        m_SummaryItem[SUMMARY_PLAYER_MATCHES]->setValue(counterPlayerMatches);
+        m_SummaryItem[SUMMARY_PLAYER_MATCHES]->setText("Players matched");
+    } else {
+        m_SummaryItem[SUMMARY_PLAYER_MATCHES]->setValue(counterClubMatches);
+        m_SummaryItem[SUMMARY_PLAYER_MATCHES]->setText("Clubs matched");
+    }
     m_SummaryItem[SUMMARY_PLAYER_UNMATCHED]->setValue(counterPlayerUnmatched);
     m_SummaryItem[SUMMARY_PLAYER_PROTECTED]->setValue(counterPlayerProtected);
-    m_SummaryItem[SUMMARY_ERRORS]->setValue(counterErrorRows);
+    m_SummaryItem[SUMMARY_ERRORS]->setValue(counterErrorRows);    
 
     // Stop/complete the progress bar
     this->stopProgressBar();
@@ -948,6 +1019,24 @@ void TransferImporter::applyDefaultSettings()
 // --- Detect column adjustment (i.e. whether one or three name columns) --- //
 void TransferImporter::detectColumnAdjustment()
 {
+    // Check if we are parsing club sheet or player sheet by checking the first column
+    const QString sampleColA = m_Spreadsheet->headerString(0,0).toLower();
+
+    // This means we are parsing club sheet
+    if(sampleColA.contains("club")) {
+        m_IsPlayerSheet = false;
+        m_ColumnAdjustment = 0;
+
+        // Set the adjusted column positions
+        CLUB_NAME = COL_CLUB_NAME + m_ColumnAdjustment;
+        CLUB_REPUTATION = COL_CLUB_REPUTATION + m_ColumnAdjustment;
+
+        return;
+    }
+
+    //Otherwise, we are parsing player sheet
+    m_IsPlayerSheet = true;
+
     // Use the second column heading as the sample
     const QString sampleColB = m_Spreadsheet->headerString(0,1).toLower();
     const QString sampleColC = m_Spreadsheet->headerString(0,2).toLower();
@@ -1036,7 +1125,7 @@ void TransferImporter::createStatusWidget()
 
     // Player matches
     m_SummaryItem[SUMMARY_PLAYER_MATCHES]->setType(SummaryItem::SUCCESS);
-    m_SummaryItem[SUMMARY_PLAYER_MATCHES]->setText("Players matched");
+    m_SummaryItem[SUMMARY_PLAYER_MATCHES]->setText("Players (or Clubs) matched");
 
     // Player matches
     m_SummaryItem[SUMMARY_PLAYER_PROTECTED]->setType(SummaryItem::INFO);
@@ -1048,7 +1137,7 @@ void TransferImporter::createStatusWidget()
 
     // Club/nation errors
     m_SummaryItem[SUMMARY_ERRORS]->setType(SummaryItem::ERROR);
-    m_SummaryItem[SUMMARY_ERRORS]->setText("Rows with errors");
+    m_SummaryItem[SUMMARY_ERRORS]->setText("Rows with errors");    
 
     // Import time per record
     m_TimerItem[IMPORT_PER_RECORD]->setType(SummaryItem::SUBTLE);

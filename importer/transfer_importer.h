@@ -138,11 +138,12 @@ private:
     // Spreadsheet
     Spreadsheet *m_Spreadsheet;
     void detectColumnAdjustment();
+    bool m_IsPlayerSheet;
 
     // Columns
     unsigned int m_ColumnAdjustment;
 
-    // Unadjusted column positions
+    // Unadjusted column positions for player sheet
     enum ENUM_COLUMN_POSITIONS {
         COL_NAME,
         COL_DATE_OF_BIRTH,
@@ -176,7 +177,13 @@ private:
         COL_SQUAD_NUMBER
     };
 
-    // Adjusted column positions
+    // Unadjusted column positions for club sheet
+    enum ENUM_COLUMN_POSITIONS_CLUB {
+        COL_CLUB_NAME,
+        COL_CLUB_REPUTATION
+    };
+
+    // Adjusted column positions for player sheet
     unsigned short NAME;
     unsigned short DATE_OF_BIRTH;
     unsigned short NATION_1;
@@ -207,6 +214,10 @@ private:
     unsigned short REPUTATION_HOME;
     unsigned short REPUTATION_CURRENT;
     unsigned short SQUAD_NUMBER;
+
+    // adjusted column positions for club sheet
+    unsigned short CLUB_NAME;
+    unsigned short CLUB_REPUTATION;
 };
 
 #endif // TRANSFER_IMPORTER_H

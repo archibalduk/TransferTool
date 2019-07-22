@@ -2,11 +2,11 @@
 <h3>Step 1: Open the database</h3>
 <p>Click on <b>Open</b> to open a database.</p>
 <h3>Step 2: Open the spreadsheet</h3>
-<p>On the <b>Transfer Import</b> tab click on <b>Open File</b> and select the spreadsheet you would like to import. The Tool will then process your spreadsheet.</p>
+<p>On the <b>Transfer Import</b> tab click on <b>Open File</b> and select the spreadsheet you would like to import. There are 2 spreadsheet types supported: one for updating players, and another to update clubs. The Tool will then process your spreadsheet.</p>
 <p><i>Note: Before opening the spreadsheet, ensure that the <b>Row Buffer</b> size at the top of the Tool's window is greater than or equal to the number of rows in your spreadsheet. A smaller Row Buffer may slow down the import process slightly.</i></p>
 <h3>Step 3: Check for errors</h3>
 <p>A process summary will be displayed in coloured boxes once the Tool has finished processing the spreadsheet as follows:
-<ul><li><b>Players matched:</b> The number of players in the spreadsheet which the Tool has identified as matching players in the database;</li>
+<ul><li><b>Players (or Clubs) matched:</b> The number of players in the spreadsheet which the Tool has identified as matching players in the database (or clubs if you selected a club spreadsheet);</li>
 <li><b>Players to be created:</b> The number of players in the spreadsheet which the Tool could <u>not</u> match against players in the database. Consequently those players will be added as new players in the database;</li>
 <li><b>Protected players:</b> The number of players identified as being protected (see <b><i>Protected Players</i></b> and <b><i>vlookup_protected_players.csv</i></b> below); and</li>
 <li><b>Rows with errors:</b> The number of rows that contain a club and/or nation which could not be found in the database. These rows will not be processed if you proceed with the import.</li></ul></p>
@@ -48,7 +48,7 @@
 <h3>Club Name Lookup</h3>
 <p>Determines whether the club names used in the imported spreadsheet will be corrected using the data from the <i>vlookup_clubs.csv</i> file which is located in the same folder as the <i>Transfer Tool.exe</i> file. Use the <b>enabled</b> setting to allow lookup correction. This is essentially a find and replace function. A "Find" and a "Replace" setting is specified in the <i>vlookup_clubs.csv</i> which the Tool uses to find and replace club names in the imported spreadsheet. This is intended to be a quick and easy way of correcting club names in the imported spreadsheet. Use the <b>disabled</b> setting to prevent any club name lookup.</p>
 <h3>Club Name Source</h3>
-<p>Determines whether the club names in the imported spreadsheet will be matched against <b>short names and long names</b> or <b>short names only</b> from the database.</p>
+<p>Determines whether the club names in the imported spreadsheet will be matched against <b>short names and long names</b> or <b>short names only</b> from the database. This setting is ignored if you selected a club sheet.</p>
 <h3>First Name Lookup</h3>
 <p>This setting does not do anything yet.</p>
 <h3>Protected Players</h3>

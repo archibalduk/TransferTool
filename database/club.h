@@ -17,6 +17,9 @@
 #include "../data_types/ptr_staff.h"
 #include "../spreadsheet/spreadsheet.h"
 
+// Forward declaration for purposes of friend class
+class TransferImporter;
+
 // --- Club.dat --- //
 class Club
 {
@@ -102,6 +105,9 @@ public:
     // Rosters
     bool addToRoster(const PtrStaff &staff, const Job &job);
     static void clearRosters();
+
+    // Friend class
+    friend class TransferImporter;
 };
 
 #endif // CLUB_H
