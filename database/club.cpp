@@ -105,6 +105,30 @@ bool Club::exportRosters(Spreadsheet &s)
     return true;
 }
 
+// --- Export data for importer --- //
+bool Club::exportDataForImporter(Spreadsheet &s)
+{
+    // Header
+    QStringList header;
+    header << "Club Long Name"
+           << "Reputation" << "Cash" << "Training"
+           << "Professional Status" << "PLC"
+           << "Attendance" << "Min Attendance"
+           << "Max Attendance" << "Last Position"
+           << "Last Division" << "Division" << "Reserve Division";
+    s.addHeader(header);
+
+    // Rows (domestic)
+    for(Club &itr : dbDom)
+    {
+        QStringList row;
+        itr.exportRowForImporter(row);
+        s.add(row);
+    }
+
+    return true;
+}
+
 // --- Export row of club data --- //
 void Club::exportRow(QStringList &row)
 {
@@ -119,6 +143,27 @@ void Club::exportRow(QStringList &row)
         << ReserveDivision.getText()
         << longName.getMatchString()
         << shortName.getMatchString();
+}
+
+// --- Export row of club data for importer --- //
+void Club::exportRowForImporter(QStringList &row)
+{
+    // Text buffers
+    String longName(Name);
+
+    row << longName.get()
+        << QString::number(Reputation/500)
+        << QString::number(Cash)
+        << QString::number(Training)
+        << QString::number(ProfessionalStatus)
+        << QString::number(PLC)
+        << QString::number(Attendance)
+        << QString::number(MinAttendance)
+        << QString::number(MaxAttendance)
+        << QString::number(LastPosition)
+        << LastDivision.getText()
+        << Division.getText()
+        << ReserveDivision.getText();
 }
 
 

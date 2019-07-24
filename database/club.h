@@ -93,7 +93,9 @@ public:
     // Export data
     static bool exportData(Spreadsheet &s);
     static bool exportRosters(Spreadsheet &s);
+    static bool exportDataForImporter(Spreadsheet &s);
     void exportRow(QStringList &row);
+    void exportRowForImporter(QStringList &row);
 
     // Get data
     QString getLongName();
