@@ -180,7 +180,18 @@ private:
     // Unadjusted column positions for club sheet
     enum ENUM_COLUMN_POSITIONS_CLUB {
         COL_CLUB_NAME,
-        COL_CLUB_REPUTATION
+        COL_CLUB_REPUTATION,
+        COL_CLUB_CASH,
+        COL_CLUB_TRAINING,
+        COL_CLUB_PROFESSIONAL_STATUS,
+        COL_CLUB_PLC,
+        COL_CLUB_ATTENDANCE,
+        COL_CLUB_MIN_ATTENDANCE,
+        COL_CLUB_MAX_ATTENDANCE,
+        COL_CLUB_LAST_POSITION,
+        COL_CLUB_LAST_DIVISION,
+        COL_CLUB_DIVISION,
+        COL_CLUB_RESERVE_DIVISION
     };
 
     // Adjusted column positions for player sheet
@@ -218,6 +229,17 @@ private:
     // adjusted column positions for club sheet
     unsigned short CLUB_NAME;
     unsigned short CLUB_REPUTATION;
+    unsigned short CLUB_CASH;
+    unsigned short CLUB_TRAINING;
+    unsigned short CLUB_PROFESSIONAL_STATUS;
+    unsigned short CLUB_PLC;
+    unsigned short CLUB_ATTENDANCE;
+    unsigned short CLUB_MIN_ATTENDANCE;
+    unsigned short CLUB_MAX_ATTENDANCE;
+    unsigned short CLUB_LAST_POSITION;
+    unsigned short CLUB_LAST_DIVISION;
+    unsigned short CLUB_DIVISION;
+    unsigned short CLUB_RESERVE_DIVISION;
 };
 
 #endif // TRANSFER_IMPORTER_H

@@ -405,6 +405,9 @@ void TransferImporter::process(const QTime &timer)
     QHash<QString, int> nations;
     QHash<QString, int> staffMain;
     QHash<QString, int> staffFailSafe;
+    QHash<QString, int> lastDivisions;
+    QHash<QString, int> divisions;
+    QHash<QString, int> reserveDivisions;
 
     // Prefix/suffix table
     QVector<QString> clubPrefixSuffix;
@@ -451,6 +454,9 @@ void TransferImporter::process(const QTime &timer)
     } else {
         // Add header columns
         m_Spreadsheet->addHeader("Club ID", 0);
+        m_Spreadsheet->addHeader("Last Division ID", 0);
+        m_Spreadsheet->addHeader("Division ID", 0);
+        m_Spreadsheet->addHeader("Reserve Division ID", 0);
     }
 
     // Prepare progress bar label
@@ -584,8 +590,34 @@ void TransferImporter::process(const QTime &timer)
                     clubId = vlookup.lookupPrefixSuffix(clubText, clubPrefixSuffix, clubs, NO_MATCH);
             }
 
+            // Division
+            int lastDivisionId = BLANK;
+            int divisionId = BLANK;
+            int reserveDivisionId = BLANK;
+            QString lastDivisionText = m_Spreadsheet->matchString(row, CLUB_LAST_DIVISION);
+            QString divisionText = m_Spreadsheet->matchString(row, CLUB_DIVISION);
+            QString reserveDivisionText = m_Spreadsheet->matchString(row, CLUB_RESERVE_DIVISION);
+
+            // Match the last division against the database
+            if(!lastDivisionText.isEmpty()) {   // Only proceed if the cell is not empty
+                lastDivisionId = lastDivisions.value(lastDivisionText, NO_MATCH);
+            }
+
+            // Match the division against the database
+            if(!divisionText.isEmpty()) {   // Only proceed if the cell is not empty
+                divisionId = divisions.value(divisionText, NO_MATCH);
+            }
+
+            // Match the reserve division against the database
+            if(!reserveDivisionText.isEmpty()) {   // Only proceed if the cell is not empty
+                reserveDivisionId = reserveDivisions.value(reserveDivisionText, NO_MATCH);
+            }
+
             // Add data to spreadsheet
             m_Spreadsheet->add(row, clubId);
+            m_Spreadsheet->add(row, lastDivisionId);
+            m_Spreadsheet->add(row, divisionId);
+            m_Spreadsheet->add(row, reserveDivisionId);
 
             // Increment counters
             if(clubId == NO_MATCH)
@@ -593,7 +625,7 @@ void TransferImporter::process(const QTime &timer)
             else
                 ++counterClubMatches;
 
-            if(clubId == NO_MATCH)
+            if(clubId == NO_MATCH || lastDivisionId == NO_MATCH || divisionId == NO_MATCH || reserveDivisionId == NO_MATCH)
                 ++counterErrorRows;
         }
     }
@@ -1032,6 +1064,18 @@ void TransferImporter::detectColumnAdjustment()
         // Set the adjusted column positions
         CLUB_NAME = COL_CLUB_NAME + m_ColumnAdjustment;
         CLUB_REPUTATION = COL_CLUB_REPUTATION + m_ColumnAdjustment;
+        CLUB_CASH = COL_CLUB_CASH + m_ColumnAdjustment;
+        CLUB_TRAINING = COL_CLUB_TRAINING + m_ColumnAdjustment;
+        CLUB_PROFESSIONAL_STATUS = COL_CLUB_PROFESSIONAL_STATUS + m_ColumnAdjustment;
+        CLUB_PLC = COL_CLUB_PLC + m_ColumnAdjustment;
+        CLUB_ATTENDANCE = COL_CLUB_ATTENDANCE + m_ColumnAdjustment;
+        CLUB_MIN_ATTENDANCE = COL_CLUB_MIN_ATTENDANCE + m_ColumnAdjustment;
+        CLUB_MAX_ATTENDANCE = COL_CLUB_MAX_ATTENDANCE + m_ColumnAdjustment;
+        CLUB_LAST_POSITION = COL_CLUB_LAST_POSITION + m_ColumnAdjustment;
+        CLUB_LAST_DIVISION = COL_CLUB_LAST_DIVISION + m_ColumnAdjustment;
+        CLUB_DIVISION = COL_CLUB_DIVISION + m_ColumnAdjustment;
+        CLUB_RESERVE_DIVISION = COL_CLUB_RESERVE_DIVISION + m_ColumnAdjustment;
+
 
         return;
     }
