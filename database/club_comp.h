@@ -39,6 +39,9 @@ public:
 
     // Get data
     QString getLongName();
+
+    // Match data
+    static void createHash(QHash<QString, int> &hash, bool useLongNames = true);
 };
 
 #endif // CLUB_COMP_H
