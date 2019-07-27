@@ -35,9 +35,9 @@ QString ClubComp::getLongName()
 void ClubComp::createHash(QHash<QString, int> &hash, bool useLongNames)
 {
 
-    // Add no comp text (text must be lowercase)
+    // Add none text (text must be lowercase)
     // Only added if the hash is empty (if it is not empty, it suggests that this function
-    // has been called previously and thus the free agent text has already been added)
+    // has been called previously and thus the none text has already been added)
     if(hash.isEmpty()) {
         hash.insert("-", NONE);
         hash.insert("_none", NONE);

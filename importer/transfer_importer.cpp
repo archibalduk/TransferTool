@@ -1,6 +1,7 @@
 #include "transfer_importer.h"
 #include "vlookup_hash.h"
 #include "../database/club.h"
+#include "../database/club_comp.h"
 #include "../database/nation.h"
 #include "../database/staff.h"
 #include "../database/staff_preferences.h"
@@ -339,7 +340,10 @@ void TransferImporter::onImport()
         } else {
             // Columns positions
             const unsigned int posFurthestRightColumn = m_Spreadsheet->data()->at(row).size()-1;  // Furthest right column
-            const unsigned int posClubId = posFurthestRightColumn;
+            const unsigned int posReserveDivisionId = posFurthestRightColumn;
+            const unsigned int posDivisionId = posFurthestRightColumn - 1;
+            const unsigned int posLastDivisionId = posFurthestRightColumn - 2;
+            const unsigned int posClubId = posFurthestRightColumn - 3;
 
             // Determine relevant club ID to use according to whether the player is on loan
             QVariant clubId = m_Spreadsheet->variant(row, posClubId);
@@ -358,6 +362,56 @@ void TransferImporter::onImport()
             if(newRep >= 0 && newRep <= 20){
                 // multiply by 500 because the 1-20 values displayed in editor are actually 500 times lower than the actual values stored in the database
                 club->Reputation = newRep*500;
+            }
+
+            // Cash
+            int newCash = m_Spreadsheet->variant(row, CLUB_CASH).toInt();
+            club->Cash = newCash;
+
+            // Training
+            char newTraining = m_Spreadsheet->variant(row, CLUB_TRAINING).toInt();
+            club->Training = newTraining;
+
+            // ProfessionalStatus
+            char newProfessionalStatus = m_Spreadsheet->variant(row, CLUB_PROFESSIONAL_STATUS).toInt();
+            club->ProfessionalStatus = newProfessionalStatus;
+
+            // PLC
+            char newPLC = m_Spreadsheet->variant(row, CLUB_PLC).toInt();
+            club->PLC = newPLC;
+
+            // Attendance
+            int newAttendance = m_Spreadsheet->variant(row, CLUB_ATTENDANCE).toInt();
+            club->Attendance = newAttendance;
+
+            // MinAttendance
+            int newMinAttendance = m_Spreadsheet->variant(row, CLUB_MIN_ATTENDANCE).toInt();
+            club->MinAttendance = newMinAttendance;
+
+            // MaxAttendance
+            int newMaxAttendance = m_Spreadsheet->variant(row, CLUB_MAX_ATTENDANCE).toInt();
+            club->MaxAttendance = newMaxAttendance;
+
+            // LastPosition
+            char newLastPosition = m_Spreadsheet->variant(row, CLUB_LAST_POSITION).toInt();
+            club->LastPosition = newLastPosition;
+
+            // LastDivision
+            QVariant LastDivisionId = m_Spreadsheet->variant(row, posLastDivisionId);
+            if(LastDivisionId.toInt() >= NONE) {
+                club->LastDivision.setNoCheck(LastDivisionId);
+            }
+
+            // Division
+            QVariant DivisionId = m_Spreadsheet->variant(row, posDivisionId);
+            if(DivisionId.toInt() >= NONE) {
+                club->Division.setNoCheck(DivisionId);
+            }
+
+            // ReserveDivision
+            QVariant ReserveDivisionId = m_Spreadsheet->variant(row, posReserveDivisionId);
+            if(ReserveDivisionId.toInt() >= NONE) {
+                club->ReserveDivision.setNoCheck(ReserveDivisionId);
             }
         }
     }
@@ -422,18 +476,26 @@ void TransferImporter::process(const QTime &timer)
         Club::createHash(clubs, true);              // Add DB long names (if the relevant RadioButton is checked or if its club sheet)
 
     if(m_IsPlayerSheet)
-        Club::createHash(clubs, false);                 // Add DB short names only if its player sheet
+        Club::createHash(clubs, false);                 // Add DB short names only if its player sheet    
     if(m_RadioButton[CLUB_LOOKUP_ENABLED]->isChecked()){
         vlookup.load(clubs);                            // Add VLookup names
         vlookup.set(VLookupHash::CLUBS_PREFIX_SUFFIX);  // Club prefix/suffixes
         vlookup.load(clubPrefixSuffix);                 // Add prefix/suffixes
     }
 
-    // Nation hash table
-    this->incrementProgressBar("Creating nation list");
-    Nation::createHash(nations);    // Add DB names
-    vlookup.set(VLookupHash::NATIONS);
-    vlookup.load(nations);          // Add VLookup names
+    if(m_IsPlayerSheet) {
+        // Add nation hash table only if its player sheet
+        this->incrementProgressBar("Creating nation list");
+        Nation::createHash(nations);    // Add DB names
+        vlookup.set(VLookupHash::NATIONS);
+        vlookup.load(nations);          // Add VLookup names
+    } else {
+        // Add comp names only if its club sheet
+        this->incrementProgressBar("Creating club competition list");
+        ClubComp::createHash(lastDivisions);
+        ClubComp::createHash(divisions);
+        ClubComp::createHash(reserveDivisions);
+    }
 
     if(m_IsPlayerSheet){
         // Staff hash tables
