@@ -15,7 +15,7 @@ RC_FILE = cmxf.rc
 RESOURCES = cmxf.qrc
 
 # The application version
-VERSION = 1.1.0
+VERSION = 1.1.1
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 win32 {
