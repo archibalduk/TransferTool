@@ -138,6 +138,7 @@ private:
     // Spreadsheet
     Spreadsheet *m_Spreadsheet;
     void detectColumnAdjustment();
+    bool isWithinRange(QString stringValue, int minRange, int maxRange);
     bool m_IsPlayerSheet;
 
     // Columns

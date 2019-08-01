@@ -111,10 +111,10 @@ bool Club::exportDataForImporter(Spreadsheet &s)
     // Header
     QStringList header;
     header << "Club Long Name"
-           << "Reputation" << "Cash" << "Training"
-           << "Professional Status" << "PLC"
-           << "Attendance" << "Min Attendance"
-           << "Max Attendance" << "Last Position"
+           << "Reputation(0-20)" << "Cash(MIN:-99999999 MAX:149999999)" << "Training(0-20)"
+           << "Professional Status(0=Not Set 1=Pro 2=Semi 3=Amateur)" << "PLC(-1:Yes 0:No)"
+           << "Attendance(0-999999999)" << "Min Attendance(0-999999999)"
+           << "Max Attendance(0-999999999)" << "Last Position(0-50)"
            << "Last Division" << "Division" << "Reserve Division";
     s.addHeader(header);
 
@@ -189,7 +189,7 @@ QString Club::getShortName()
 /* ==================== */
 
 // --- Populate a hash with domestic club data --- //
-void Club::createHash(QHash<QString, int> &hash, bool useLongNames)
+void Club::createHash(QHash<QString, int> &hash, bool useLongNames, bool unmatchDuplicates)
 {
 
     // Add free agent text (text must be lowercase)
@@ -205,12 +205,17 @@ void Club::createHash(QHash<QString, int> &hash, bool useLongNames)
     }
 
     // For speed, the loops are embedded within the if statement
-    // (rather than embedding the if statements within a loop)
+    // (rather than embedding the if statements within a loop)   
 
     // Long names
     if(useLongNames) {
         for(Club itr : dbDom) {
-            hash.insert(String(itr.Name).getMatchString(), itr.ID);
+            if(unmatchDuplicates && hash.contains(String(itr.Name).getMatchString())){
+                // if unmatchDuplicates is true, any clubs with duplicate long names will be set their ID as NO_MATCH in the hash to avoid wrong club being used
+                hash.insert(String(itr.Name).getMatchString(), NO_MATCH);
+            } else {
+                hash.insert(String(itr.Name).getMatchString(), itr.ID);
+            }
         }
     }
     // Short names

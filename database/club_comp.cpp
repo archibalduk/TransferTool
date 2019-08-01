@@ -49,7 +49,12 @@ void ClubComp::createHash(QHash<QString, int> &hash, bool useLongNames)
     // Long names
     if(useLongNames) {
         for(ClubComp itr : dbDom) {
-            hash.insert(String(itr.Name).getMatchString(), itr.ID);
+            if(hash.contains(String(itr.Name).getMatchString())){
+                // any competitions with duplicate long names will be set their ID as NO_MATCH in the hash to avoid wrong competition being used
+                hash.insert(String(itr.Name).getMatchString(), NO_MATCH);
+            } else {
+                hash.insert(String(itr.Name).getMatchString(), itr.ID);
+            }
         }
     }
     // Short names

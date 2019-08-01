@@ -102,7 +102,7 @@ public:
     QString getShortName();
 
     // Match data
-    static void createHash(QHash<QString, int> &hash, bool useLongNames = true);
+    static void createHash(QHash<QString, int> &hash, bool useLongNames = true, bool unmatchDuplicates = false);
 
     // Rosters
     bool addToRoster(const PtrStaff &staff, const Job &job);

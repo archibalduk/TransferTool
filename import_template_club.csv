@@ -1,4 +1,5 @@
-Club Long Name,Reputation,Cash,Training,Professional Status,PLC,Attendance,Min Attendance,Max Attendance,Last Position,Last Division,Division,Reserve Division
-FK Gorno Lisice,3,0,3,2,0,0,0,0,0,A Lower Division,A Lower Division,
+Club Long Name,Reputation(0-20),Cash(MIN:-99999999 MAX:149999999),Training(0-20),Professional Status(0=Not Set 1=Pro 2=Semi 3=Amateur),PLC(-1:Yes 0:No),Attendance(0-999999999),Min Attendance(0-999999999),Max Attendance(0-999999999),Last Position(0-50),Last Division,Division,Reserve Division
+UE Olot,5,75000,2,1,0,1100,400,6000,18,Spanish Segunda División B3,Spanish Segunda División B3,
+FK Gorno Lisice,,,,,,,,,,A Lower Division,,
 Esporte Clube Águia Negra,2,85000,2,1,0,700,400,1500,0,_none,A Lower Division,Brazilian Central Lower Division
 Oeste Futebol Clube (SP),7,500000,3,1,0,0,0,0,16,Brazilian Campeonato Série B,Brazilian Campeonato Série B,Brazilian São Paulo Lower Division

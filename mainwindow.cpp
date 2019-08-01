@@ -143,8 +143,8 @@ void MainWindow::createExporter(Exporter *e)
            "Club roster list in the form of Staff Id numbers. This is primarily for testing purposes.");
 
     e->add(&Club::exportDataForImporter,
-           "Clubs (Transfer Importer Format)",
-           "List of clubs formatted as a Transfer Importer spreadsheet.");
+           "Clubs (Clubs Importer Format)",
+           "List of clubs formatted as a Clubs Importer spreadsheet.");
 
     e->add(&Staff::exportExtendedList,
            "Staff List (Extended)",

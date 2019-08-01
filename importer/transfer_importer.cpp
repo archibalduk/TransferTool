@@ -340,78 +340,107 @@ void TransferImporter::onImport()
         } else {
             // Columns positions
             const unsigned int posFurthestRightColumn = m_Spreadsheet->data()->at(row).size()-1;  // Furthest right column
-            const unsigned int posReserveDivisionId = posFurthestRightColumn;
-            const unsigned int posDivisionId = posFurthestRightColumn - 1;
-            const unsigned int posLastDivisionId = posFurthestRightColumn - 2;
-            const unsigned int posClubId = posFurthestRightColumn - 3;
+            const unsigned int posOutOfRange = posFurthestRightColumn;
+            const unsigned int posReserveDivisionId = posFurthestRightColumn - 1;
+            const unsigned int posDivisionId = posFurthestRightColumn - 2;
+            const unsigned int posLastDivisionId = posFurthestRightColumn - 3;
+            const unsigned int posClubId = posFurthestRightColumn - 4;
 
-            // Determine relevant club ID to use according to whether the player is on loan
-            QVariant clubId = m_Spreadsheet->variant(row, posClubId);
+            // Determine relevant club ID to use
+            int clubId = m_Spreadsheet->number(row, posClubId);
 
             // Skip any invalid club Ids
-            if(clubId.toInt() == Spreadsheet::NOT_A_NUMBER || !(clubId.toInt() >= VALID)) {
+            if(clubId == Spreadsheet::NOT_A_NUMBER || !(clubId >= VALID)) {
+                continue;
+            }
+
+            // Skip any rows with out of range value
+            if(!m_Spreadsheet->string(row, posOutOfRange).isEmpty()){
+                continue;
+            }
+
+            // Skip any rows with bad division ids
+            QVariant LastDivisionId = m_Spreadsheet->variant(row, posLastDivisionId);
+            if(LastDivisionId.toInt() == NO_MATCH) {
+                continue;
+            }
+            QVariant DivisionId = m_Spreadsheet->variant(row, posDivisionId);
+            if(DivisionId.toInt() == NO_MATCH) {
+                continue;
+            }
+            QVariant ReserveDivisionId = m_Spreadsheet->variant(row, posReserveDivisionId);
+            if(ReserveDivisionId.toInt() == NO_MATCH) {
                 continue;
             }
 
             /* Edit existing club */
             // Club pointer
-            Club *club = &(Club::dbDom[clubId.toInt()]);
+            Club *club = &(Club::dbDom[clubId]);
 
-            // Reputation
-            short newRep = m_Spreadsheet->variant(row, CLUB_REPUTATION).toInt();
-            if(newRep >= 0 && newRep <= 20){
-                // multiply by 500 because the 1-20 values displayed in editor are actually 500 times lower than the actual values stored in the database
-                club->Reputation = newRep*500;
-            }
-
-            // Cash
-            int newCash = m_Spreadsheet->variant(row, CLUB_CASH).toInt();
-            club->Cash = newCash;
-
-            // Training
-            char newTraining = m_Spreadsheet->variant(row, CLUB_TRAINING).toInt();
-            club->Training = newTraining;
-
-            // ProfessionalStatus
-            char newProfessionalStatus = m_Spreadsheet->variant(row, CLUB_PROFESSIONAL_STATUS).toInt();
-            club->ProfessionalStatus = newProfessionalStatus;
-
-            // PLC
-            char newPLC = m_Spreadsheet->variant(row, CLUB_PLC).toInt();
-            club->PLC = newPLC;
-
-            // Attendance
-            int newAttendance = m_Spreadsheet->variant(row, CLUB_ATTENDANCE).toInt();
-            club->Attendance = newAttendance;
-
-            // MinAttendance
-            int newMinAttendance = m_Spreadsheet->variant(row, CLUB_MIN_ATTENDANCE).toInt();
-            club->MinAttendance = newMinAttendance;
-
-            // MaxAttendance
-            int newMaxAttendance = m_Spreadsheet->variant(row, CLUB_MAX_ATTENDANCE).toInt();
-            club->MaxAttendance = newMaxAttendance;
-
-            // LastPosition
-            char newLastPosition = m_Spreadsheet->variant(row, CLUB_LAST_POSITION).toInt();
-            club->LastPosition = newLastPosition;
-
-            // LastDivision
-            QVariant LastDivisionId = m_Spreadsheet->variant(row, posLastDivisionId);
+            // Club divisions
             if(LastDivisionId.toInt() >= NONE) {
                 club->LastDivision.setNoCheck(LastDivisionId);
             }
-
-            // Division
-            QVariant DivisionId = m_Spreadsheet->variant(row, posDivisionId);
             if(DivisionId.toInt() >= NONE) {
                 club->Division.setNoCheck(DivisionId);
             }
-
-            // ReserveDivision
-            QVariant ReserveDivisionId = m_Spreadsheet->variant(row, posReserveDivisionId);
             if(ReserveDivisionId.toInt() >= NONE) {
                 club->ReserveDivision.setNoCheck(ReserveDivisionId);
+            }
+
+            // Reputation
+            QString newRep = m_Spreadsheet->string(row, CLUB_REPUTATION);
+            if(!newRep.isEmpty()){
+                // multiply by 500 because the 1-20 values displayed in editor are actually 500 times lower than the actual values stored in the database
+                club->Reputation = newRep.toInt()*500;
+            }
+
+            // Cash
+            QString newCash = m_Spreadsheet->string(row, CLUB_CASH);
+            if(!newCash.isEmpty()){
+                club->Cash = newCash.toInt();
+            }
+
+            // Training
+            QString newTraining = m_Spreadsheet->string(row, CLUB_TRAINING);
+            if(!newTraining.isEmpty()){
+                club->Training = newTraining.toInt();
+            }
+
+            // ProfessionalStatus
+            QString newProfessionalStatus = m_Spreadsheet->string(row, CLUB_PROFESSIONAL_STATUS);
+            if(!newProfessionalStatus.isEmpty()){
+                club->ProfessionalStatus = newProfessionalStatus.toInt();
+            }
+
+            // PLC
+            QString newPLC = m_Spreadsheet->string(row, CLUB_PLC);
+            if(!newPLC.isEmpty()){
+                club->PLC = newPLC.toInt();
+            }
+
+            // Attendance
+            QString newAttendance = m_Spreadsheet->string(row, CLUB_ATTENDANCE);
+            if(!newAttendance.isEmpty()){
+                club->Attendance = newAttendance.toInt();
+            }
+
+            // MinAttendance
+            QString newMinAttendance = m_Spreadsheet->string(row, CLUB_MIN_ATTENDANCE);
+            if(!newMinAttendance.isEmpty()){
+                club->MinAttendance = newMinAttendance.toInt();
+            }
+
+            // MaxAttendance
+            QString newMaxAttendance = m_Spreadsheet->string(row, CLUB_MAX_ATTENDANCE);
+            if(!newMaxAttendance.isEmpty()){
+                club->MaxAttendance = newMaxAttendance.toInt();
+            }
+
+            // LastPosition
+            QString newLastPosition = m_Spreadsheet->string(row, CLUB_LAST_POSITION);
+            if(!newLastPosition.isEmpty()){
+                club->LastPosition = newLastPosition.toInt();
             }
         }
     }
@@ -458,10 +487,8 @@ void TransferImporter::process(const QTime &timer)
     QHash<QString, int> clubs;
     QHash<QString, int> nations;
     QHash<QString, int> staffMain;
-    QHash<QString, int> staffFailSafe;
-    QHash<QString, int> lastDivisions;
-    QHash<QString, int> divisions;
-    QHash<QString, int> reserveDivisions;
+    QHash<QString, int> staffFailSafe;    
+    QHash<QString, int> divisions;    
 
     // Prefix/suffix table
     QVector<QString> clubPrefixSuffix;
@@ -473,7 +500,7 @@ void TransferImporter::process(const QTime &timer)
     this->incrementProgressBar("Creating club list");
 
     if(m_RadioButton[CLUB_NAMES_SHORT_AND_LONG]->isChecked() || !m_IsPlayerSheet)
-        Club::createHash(clubs, true);              // Add DB long names (if the relevant RadioButton is checked or if its club sheet)
+        Club::createHash(clubs, true, !m_IsPlayerSheet);// Add DB long names (if the relevant RadioButton is checked or if its club sheet)
 
     if(m_IsPlayerSheet)
         Club::createHash(clubs, false);                 // Add DB short names only if its player sheet    
@@ -491,10 +518,8 @@ void TransferImporter::process(const QTime &timer)
         vlookup.load(nations);          // Add VLookup names
     } else {
         // Add comp names only if its club sheet
-        this->incrementProgressBar("Creating club competition list");
-        ClubComp::createHash(lastDivisions);
-        ClubComp::createHash(divisions);
-        ClubComp::createHash(reserveDivisions);
+        this->incrementProgressBar("Creating club competition list");        
+        ClubComp::createHash(divisions);        
     }
 
     if(m_IsPlayerSheet){
@@ -519,6 +544,7 @@ void TransferImporter::process(const QTime &timer)
         m_Spreadsheet->addHeader("Last Division ID", 0);
         m_Spreadsheet->addHeader("Division ID", 0);
         m_Spreadsheet->addHeader("Reserve Division ID", 0);
+        m_Spreadsheet->addHeader("Out of Range", 0);
     }
 
     // Prepare progress bar label
@@ -662,7 +688,7 @@ void TransferImporter::process(const QTime &timer)
 
             // Match the last division against the database
             if(!lastDivisionText.isEmpty()) {   // Only proceed if the cell is not empty
-                lastDivisionId = lastDivisions.value(lastDivisionText, NO_MATCH);
+                lastDivisionId = divisions.value(lastDivisionText, NO_MATCH);
             }
 
             // Match the division against the database
@@ -672,22 +698,70 @@ void TransferImporter::process(const QTime &timer)
 
             // Match the reserve division against the database
             if(!reserveDivisionText.isEmpty()) {   // Only proceed if the cell is not empty
-                reserveDivisionId = reserveDivisions.value(reserveDivisionText, NO_MATCH);
+                reserveDivisionId = divisions.value(reserveDivisionText, NO_MATCH);
             }
+
+            QString outOfRange = "";
+
+            // Reputation
+            if(!isWithinRange(m_Spreadsheet->string(row, CLUB_REPUTATION), 0, 20)){
+                outOfRange.append("|BAD REPUTATION");
+            }
+
+            // Cash
+            if(!isWithinRange(m_Spreadsheet->string(row, CLUB_CASH), -99999999, 149999999)){
+                 outOfRange.append("|BAD CASH");
+            }
+
+            // Training
+            if(!isWithinRange(m_Spreadsheet->string(row, CLUB_TRAINING), 0, 20)){
+                 outOfRange.append("|BAD TRAINING");
+            }
+
+            // ProfessionalStatus
+            if(!isWithinRange(m_Spreadsheet->string(row, CLUB_PROFESSIONAL_STATUS), 0, 3)){
+                 outOfRange.append("|BAD PROFESSIONAL STATUS");
+            }
+
+            // PLC            
+            if(!isWithinRange(m_Spreadsheet->string(row, CLUB_PLC), -1, 0)){
+                 outOfRange.append("|BAD PLC");
+            }
+
+            // Attendance
+            if(!isWithinRange(m_Spreadsheet->string(row, CLUB_ATTENDANCE), 0, 999999999)){
+                 outOfRange.append("|BAD ATTENDANCE");
+            }
+
+            // MinAttendance
+            if(!isWithinRange(m_Spreadsheet->string(row, CLUB_MIN_ATTENDANCE), 0, 999999999)){
+                 outOfRange.append("|BAD MIN ATTENDANCE");
+            }
+
+            // MaxAttendance
+            if(!isWithinRange(m_Spreadsheet->string(row, CLUB_MAX_ATTENDANCE), 0, 999999999)){
+                 outOfRange.append("|BAD MAX ATTENDANCE");
+            }
+
+            // LastPosition
+            if(!isWithinRange(m_Spreadsheet->string(row, CLUB_LAST_POSITION), 0, 50)){
+                 outOfRange.append("|BAD LAST POSITION");
+            }            
 
             // Add data to spreadsheet
             m_Spreadsheet->add(row, clubId);
             m_Spreadsheet->add(row, lastDivisionId);
             m_Spreadsheet->add(row, divisionId);
             m_Spreadsheet->add(row, reserveDivisionId);
+            m_Spreadsheet->add(row, outOfRange);
 
             // Increment counters
-            if(clubId == NO_MATCH)
+            if(clubId == NO_MATCH || clubId == BLANK)
                 ++counterClubUnmatched;
             else
                 ++counterClubMatches;
 
-            if(clubId == NO_MATCH || lastDivisionId == NO_MATCH || divisionId == NO_MATCH || reserveDivisionId == NO_MATCH)
+            if(clubId == NO_MATCH || clubId == BLANK || lastDivisionId == NO_MATCH || divisionId == NO_MATCH || reserveDivisionId == NO_MATCH || !outOfRange.isEmpty())
                 ++counterErrorRows;
         }
     }
@@ -1201,6 +1275,21 @@ void TransferImporter::detectColumnAdjustment()
     REPUTATION_HOME = COL_REPUTATION_HOME + m_ColumnAdjustment;
     REPUTATION_CURRENT = COL_REPUTATION_CURRENT + m_ColumnAdjustment;
     SQUAD_NUMBER = COL_SQUAD_NUMBER + m_ColumnAdjustment;
+}
+
+// --- returns true if the stringValue is numerical and within range or if it is empty, false otherwise --- //
+bool TransferImporter::isWithinRange(QString stringValue, int minRange, int maxRange){
+    if(stringValue.isEmpty()){
+        return true;
+    }
+
+    bool ok;
+    int intValue = stringValue.toInt(&ok);
+    if(!ok){
+        return false;
+    }
+
+    return (intValue >= minRange && intValue <= maxRange);
 }
 
 
