@@ -34,15 +34,6 @@ QString ClubComp::getLongName()
 // --- Populate a hash with domestic club comp data --- //
 void ClubComp::createHash(QHash<QString, int> &hash, bool useLongNames)
 {
-
-    // Add none text (text must be lowercase)
-    // Only added if the hash is empty (if it is not empty, it suggests that this function
-    // has been called previously and thus the none text has already been added)
-    if(hash.isEmpty()) {
-        hash.insert("-", NONE);
-        hash.insert("_none", NONE);
-    }
-
     // For speed, the loops are embedded within the if statement
     // (rather than embedding the if statements within a loop)
 

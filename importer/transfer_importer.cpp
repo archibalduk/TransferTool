@@ -360,16 +360,16 @@ void TransferImporter::onImport()
             }
 
             // Skip any rows with bad division ids
-            QVariant LastDivisionId = m_Spreadsheet->variant(row, posLastDivisionId);
-            if(LastDivisionId.toInt() == NO_MATCH) {
+            int lastDivisionId = m_Spreadsheet->number(row, posLastDivisionId);
+            if(lastDivisionId == NO_MATCH || lastDivisionId == Spreadsheet::NOT_A_NUMBER) {
                 continue;
             }
-            QVariant DivisionId = m_Spreadsheet->variant(row, posDivisionId);
-            if(DivisionId.toInt() == NO_MATCH) {
+            int divisionId = m_Spreadsheet->number(row, posDivisionId);
+            if(divisionId == NO_MATCH || divisionId == Spreadsheet::NOT_A_NUMBER) {
                 continue;
             }
-            QVariant ReserveDivisionId = m_Spreadsheet->variant(row, posReserveDivisionId);
-            if(ReserveDivisionId.toInt() == NO_MATCH) {
+            int reserveDivisionId = m_Spreadsheet->number(row, posReserveDivisionId);
+            if(reserveDivisionId == NO_MATCH || reserveDivisionId == Spreadsheet::NOT_A_NUMBER) {
                 continue;
             }
 
@@ -378,14 +378,14 @@ void TransferImporter::onImport()
             Club *club = &(Club::dbDom[clubId]);
 
             // Club divisions
-            if(LastDivisionId.toInt() >= NONE) {
-                club->LastDivision.setNoCheck(LastDivisionId);
+            if(lastDivisionId >= VALID) {
+                club->LastDivision.set(lastDivisionId);
             }
-            if(DivisionId.toInt() >= NONE) {
-                club->Division.setNoCheck(DivisionId);
+            if(divisionId >= VALID) {
+                club->Division.set(divisionId);
             }
-            if(ReserveDivisionId.toInt() >= NONE) {
-                club->ReserveDivision.setNoCheck(ReserveDivisionId);
+            if(reserveDivisionId >= VALID) {
+                club->ReserveDivision.set(reserveDivisionId);
             }
 
             // Reputation
