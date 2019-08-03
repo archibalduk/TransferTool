@@ -42,13 +42,14 @@
 <h3>Transfer Value, Wage and World Reputation</h3>
 <p>Note that the Tool will automatically set a player's Wage and World Reputation based upon the Transfer Value entered into the spreadsheet (see the <b>Transfer Value</b> column). If you do not want this to happen then do not enter any Value.</p>
 <h3>Last Division, Division and Reserve Division</h3>
-<p>If you are importing club sheet, the Last Division, Division and Reserve Division fields should contain the long names of the desired competitions, or an empty string to don't make any changes to that club's current division value. Setting a division value of a club to _none (no division) isn't supported.</p>
+<p>If you are importing club sheet, the Last Division, Division and Reserve Division fields should contain the long names of the desired competitions, or an empty (blank) string to don't make any changes to that club's current division value. Setting a division value of a club to _none (no division) isn't supported.</p>
 <h3>Data validity of clubs importer</h3>
 <p>The tool will inform you if the numerical fields of the clubs importer sheet aren't within the allowed range, or if the club or division names don't exist. <b>However, the tool doesn't check the validity of the following data (which you need to manually be sure it is valid before importing clubs)</b>:
 <ul><li>if the relation between reputation and cash is valid</li>
 <li>if the relation between the attendances is correct</li>
 <li>last position validity (for example, 2 clubs with same last position of the same division)</li>
-<li>validity of change of division of a club (for example, if you move a club from division B to A without moving another club from division A to B. Or if the club's nation is different from the division's nation, etc)</li></ul></p>
+<li>validity of change of division of a club (for example, if you move a club from division B to A without moving another club from division A to B. Or if the club's nation is different from the division's nation, etc)</li></ul>
+Passing empty (blank) values to any fields of the clubs importer sheet (like ,,) is allowed and it means the existing value of that field in the database won't be modified.</p>
 
 <h1>Settings</h1>
 <h3>Row Buffer</h3>
