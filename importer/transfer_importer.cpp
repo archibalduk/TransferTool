@@ -756,12 +756,12 @@ void TransferImporter::process(const QTime &timer)
             m_Spreadsheet->add(row, outOfRange);
 
             // Increment counters
-            if(clubId == NO_MATCH || clubId == BLANK)
+            if(clubId < VALID)
                 ++counterClubUnmatched;
             else
                 ++counterClubMatches;
 
-            if(clubId == NO_MATCH || clubId == BLANK || lastDivisionId == NO_MATCH || divisionId == NO_MATCH || reserveDivisionId == NO_MATCH || !outOfRange.isEmpty())
+            if(clubId < VALID || lastDivisionId == NO_MATCH || divisionId == NO_MATCH || reserveDivisionId == NO_MATCH || !outOfRange.isEmpty())
                 ++counterErrorRows;
         }
     }
