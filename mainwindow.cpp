@@ -157,6 +157,10 @@ void MainWindow::createExporter(Exporter *e)
     e->add(&Staff::exportTransferList_NoAccents,
            "Staff List (Transfer Importer Format) (NO ACCENTS)",
            "Staff list formatted as a Transfer Importer spreadsheet (no accents in staff and club names).");
+
+    e->add(&Staff::exportTransferListPlayers_NoAccents,
+           "Player List (Transfer Importer Format) (NO ACCENTS)",
+           "Players (only) list formatted as a Transfer Importer spreadsheet (no accents in staff and club names).");
 }
 
 // --- Create the status bar --- //
@@ -258,6 +262,12 @@ void MainWindow::createWindow()
                                             "www.ehmtheblueline.com</a></p>"
                                             "<p>Testing by: <b>Dermotron</b> - <a href=\"http://champman0102.co.uk\">"
                                             "www.champman0102.co.uk</a></p>"
+                                            "<p>Some collaboration by: <b>Nick</b> - <a href=\"https://nic.hopto.org/open/cm0102\">"
+                                            "nic.hopto.org</a></p>"
+                                            "<p>Some collaboration by: <b>MadScientist</b> - <a href=\"https://github.com/MScientistCM\">"
+                                                                                               "github.com/MScientistCM</a></p>"
+                                            "<p><b>Code project at</b>: <a href=\"https://github.com/archibalduk/TransferTool\">"
+                                                                                               "github.com/archibalduk/TransferTool</a></p>"
                                             "<h3>Icons</h3>"
                                             "<p>All icons are designed by <a href=\"http://www.icons8.com\">"
                                             "www.icons8.com</a> and are used under the Creative Commons Attribution-NoDerivs"

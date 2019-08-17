@@ -157,7 +157,7 @@ void TransferImporter::onImport()
                 continue;
 
             // Columns positions
-            const unsigned int posFurthestRightColumn = m_Spreadsheet->data()->at(row).size()-1;  // Furthest right column
+            const unsigned int posFurthestRightColumn = m_Spreadsheet->data()->at(row).size()-3;  // Furthest right column
             const unsigned int posIsProtected = posFurthestRightColumn;
             const unsigned int posLoanClubId = posFurthestRightColumn -1;
             const unsigned int posClubId = posFurthestRightColumn - 2;
@@ -537,14 +537,16 @@ void TransferImporter::process(const QTime &timer)
         m_Spreadsheet->addHeader("Nation2 ID", 0);
         m_Spreadsheet->addHeader("Club ID", 0);
         m_Spreadsheet->addHeader("Loan Club ID", 0);
-        m_Spreadsheet->addHeader("Protected?", 0);
+        m_Spreadsheet->addHeader("Protected?", 0);        
+        m_Spreadsheet->addHeader("Matched?", 0);
+        m_Spreadsheet->addHeader("Errored?", 0);
     } else {
         // Add header columns
         m_Spreadsheet->addHeader("Club ID", 0);
         m_Spreadsheet->addHeader("Last Division ID", 0);
         m_Spreadsheet->addHeader("Division ID", 0);
         m_Spreadsheet->addHeader("Reserve Division ID", 0);
-        m_Spreadsheet->addHeader("Out of Range", 0);
+        m_Spreadsheet->addHeader("Out of Range?", 0);
     }
 
     // Prepare progress bar label
@@ -654,16 +656,24 @@ void TransferImporter::process(const QTime &timer)
             m_Spreadsheet->add(row, isProtected);
 
             // Increment counters
-            if(staffId == NO_MATCH)
+            if(staffId == NO_MATCH) {
                 ++counterPlayerUnmatched;
-            else
+                m_Spreadsheet->add(row, "Unmatched");
+            }
+            else {
                 ++counterPlayerMatches;
+                m_Spreadsheet->add(row, "Matched");
+            }
 
             if(isProtected)
                 ++counterPlayerProtected;
 
-            if(clubId == NO_MATCH || loanClubId == NO_MATCH || primaryNationId == NO_MATCH || secondaryNationId == NO_MATCH)
+            if(clubId == NO_MATCH || loanClubId == NO_MATCH || primaryNationId == NO_MATCH || secondaryNationId == NO_MATCH) {
                 ++counterErrorRows;
+                m_Spreadsheet->add(row, "ERROR");
+            } else {
+                m_Spreadsheet->add(row, "");
+            }
         } else {
             // Club
             int clubId = BLANK;
@@ -1173,10 +1183,10 @@ void TransferImporter::createSettingsWidget()
 void TransferImporter::applyDefaultSettings()
 {
     m_ExchangeRate->setValue(1);
-    m_YearAdjustment->setValue(14);
+    m_YearAdjustment->setValue(0);
     m_RadioButton[IGNORE_ACCENTS]->setChecked(true);
     m_RadioButton[CLUB_LOOKUP_ENABLED]->setChecked(true);
-    m_RadioButton[CLUB_NAMES_SHORT_ONLY]->setChecked(true);
+    m_RadioButton[CLUB_NAMES_SHORT_AND_LONG]->setChecked(true);
     m_RadioButton[FIRST_NAME_LOOKUP_ENABLED]->setChecked(true);
     m_RadioButton[PROTECTED_PLAYERS_ENABLED]->setChecked(true);
 }

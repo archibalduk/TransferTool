@@ -85,6 +85,7 @@ public:
     static bool exportExtendedList(Spreadsheet &s);
     static bool exportTransferList(Spreadsheet &s);
     static bool exportTransferList_NoAccents(Spreadsheet &s);
+    static bool exportTransferListPlayers_NoAccents(Spreadsheet &s);
 
     // Get data
     QString getDisplayText();

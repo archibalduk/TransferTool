@@ -15,7 +15,7 @@
 
 // --- Static data --- //
 QChar Spreadsheet::s_Delimiter = Spreadsheet::getSystemDelimiter();
-int Spreadsheet::s_ReadBufferSize = 95000 + Spreadsheet::BUFFER_MARGIN;
+int Spreadsheet::s_ReadBufferSize = 300000 + Spreadsheet::BUFFER_MARGIN;
 
 /* ===================== */
 /*      Spreadsheet      */
