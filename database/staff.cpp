@@ -259,6 +259,77 @@ bool Staff::exportTransferList_NoAccents(Spreadsheet &s)
     return true;
 }
 
+// --- Export PLAYERS list in the form of a Transfer Importer spreadsheet --- //
+bool Staff::exportTransferListPlayers(Spreadsheet &s)
+{
+    // Header
+    QStringList header;
+    header << "First name" << "Second name" << "Common name" << "DOB"
+           << "Nation1" << "Nation2"
+           << "Contract start" << "Contract end"
+           << "Value"
+           << "Club" << "On loan from"
+           << "GK" << "SW" << "D" << "DM" << "M" << "AM" << "ST" << "WB" << "FR"
+           << "Right" << "Left" << "Center"
+           << "Right Foot" << "Left Foot"
+           << "Int Caps" << "Int Goals"
+           << "Current Ability" << "Potential Ability"
+           << "Home Reputation" << "Current Reputation"
+           << "Squad no.";
+
+    s.addHeader(header);
+
+    // Temp data match text settings
+    int yearAdjustment = 0;
+    bool useFullDate = true;
+
+    // Rows
+    for(Staff &itr : db) {
+        if(itr.Classification.isNonPlayer())
+            continue;
+
+        QStringList row;
+
+        // Common staff data
+        row << itr.FirstName.getSafeText() << itr.SecondName.getSafeText() << itr.CommonName.getSafeText()
+            << itr.DateOfBirth.getMatchText(yearAdjustment, useFullDate)
+            << itr.Nation.getSafeText() << itr.SecondNation.getSafeText()
+            << itr.DateJoinedClub.getMatchText(yearAdjustment, useFullDate) << itr.ContractExpiresClub.getMatchText(yearAdjustment, useFullDate)
+            << ""
+            << itr.ClubContracted.getSafeText() << "";
+
+        // Player data
+        Player *p = itr.PlayerData.data();
+
+        if(p != nullptr) {
+            row << p->Goalkeeper.getText() << p->Sweeper.getText() << p->Defender.getText()
+                << p->DefensiveMidfielder.getText() << p->Midfielder.getText() << p->AttackingMidfielder.getText()
+                << p->Attacker.getText() << p->WingBack.getText() << p->FreeRole.getText()
+                << p->RightSide.getText() << p->LeftSide.getText() << p->Central.getText()
+                << p->RightFoot.getText() << p->LeftFoot.getText();
+        }
+        else {
+            row << "" << "" << "" << "" << "" << "" << "" << "" << ""
+                << "" << "" << ""
+                << "" << "";
+        }
+
+        // International data
+        row << itr.InternationalApps.getText() << itr.InternationalGoals.getText();
+
+        // Remaining player data
+        if(p != nullptr) {
+            row << p->CurrentAbility.getText() << p->PotentialAbility.getText()
+                << p->HomeReputation.getText() << p->CurrentReputation.getText()
+                << p->SquadNumber.getText();
+        }
+
+        s.add(row);
+    }
+
+    return true;
+}
+
 // --- Export PLAYERS list in the form of a Transfer Importer spreadsheet (NO ACCENTS) --- //
 bool Staff::exportTransferListPlayers_NoAccents(Spreadsheet &s)
 {

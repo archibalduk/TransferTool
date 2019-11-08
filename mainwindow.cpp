@@ -158,6 +158,10 @@ void MainWindow::createExporter(Exporter *e)
            "Staff List (Transfer Importer Format) (NO ACCENTS)",
            "Staff list formatted as a Transfer Importer spreadsheet (no accents in staff and club names).");
 
+    e->add(&Staff::exportTransferListPlayers,
+           "Player List (Transfer Importer Format)",
+           "Players (only) list formatted as a Transfer Importer spreadsheet.");
+
     e->add(&Staff::exportTransferListPlayers_NoAccents,
            "Player List (Transfer Importer Format) (NO ACCENTS)",
            "Players (only) list formatted as a Transfer Importer spreadsheet (no accents in staff and club names).");
